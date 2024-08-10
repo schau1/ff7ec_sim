@@ -1,0 +1,155 @@
+<html lang="en">
+<head>
+
+	  
+	<link rel="stylesheet" href="sim_style.css">
+	<link rel="stylesheet" href="w3.css">	
+	
+	<link rel="shortcut icon" href="#">
+	<title>FF7 Ever Crisis Simulation</title>
+</head>
+<h1 class="w3-margin w3-center">FF7EC Weapon Optimizer</h1>
+
+<div class="w3-margin">
+<h2>Instruction:</h2>
+<p>This app will find the best subweapons to deal the most damage for either main hand or off hand.</p>
+<p>1. Require Main Hand and Off Hand to be selected.</p>
+<p>2. Items on blacklist will not be used as part of the simulation.</p>
+<p>3. The more subweapons you select, the faster the sim will run. Finding all 3 subweapons takes about 3 mins. 
+ Finding 2 weapons take less than 1 min. If you already know one weapon you will use, select the weapon for a faster run.</p>
+<p>User file format is a csv file. Use google spreadsheet to create the file. Format should look like this:</p>
+<img src="instruction_example.png" class="w3-image" alt="Instruction">
+<p>Level: The current level of the weapon.<p>
+<p>OB: The current OB of the weapon (max 10). Extra OB: OB10+x (not used).</p>
+<p>Sim: "N" if you do not want to equip this weapon (similar to Blacklist).</p>
+<p><b>Link to google spreadsheet sample file:</b> <a href="https://docs.google.com/spreadsheets/d/1YTBSvFO1chDF6Obj0ffuNXO43K7staeEo3eA6k9YsjY/edit?usp=sharing" target="_blank">Example File</a></p>
+<p>You can make a copy of this sample file and change OBs and levels of each weapon to match your own inventory.</p>
+<p>After you're done adding items from your own inventory, click File -> Download -> Comma Separated Values (.csv).</p>
+<p>You can then use this file as the input file if desired. This file is not required. If no file, the simulation will assume all 
+weapons are OB10 and level 110.</b>
+</div>
+
+<div class="w3-margin">
+  <form action="#">
+    <div class="file-field">
+      <div class="btn">
+        <span><b>Enter Your Inventory File (if no file, assume all OB10 and level 110)</b></span>
+        <input type="file" class="w3-input w3-border" id="inputFile">
+      </div>
+    </div>
+  </form>
+</div>  
+
+<script> 
+  document.getElementById('inputFile').addEventListener('change', async function(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const buffer = e.target.result;
+      // Process the data
+		processUserData(e.target.result);
+    };
+    reader.readAsText(file);
+  });  
+</script>	
+
+<div class="charInfo w3-margin">
+	<div class="w3-dropdown-hover w3-margin">
+	  <button class="w3-button w3-teal" onClick="fillCharacter()" id="characterButton">Character</button>
+	  <div class="w3-dropdown-content w3-bar-block w3-border" id="charDiv">
+		<input class="w3-input w3-padding" type="text" placeholder="Search character.." id="userFilterChar" onkeyup="filterFunctionChar()">	  		
+	  </div>
+	</div>	
+	
+	<div class="w3-dropdown-hover w3-margin">
+	  <button class="w3-button w3-teal " onClick="fillGear()" id="gearButton">Gear</button>
+	  <div class="w3-dropdown-content w3-bar-block w3-border" id="gearDiv">
+		<input class="w3-input w3-padding" type="text" placeholder="Search gear.." id="userFilterGear" onkeyup="filterFunctionGear()">	  		
+	  </div>
+	</div>		
+</div>
+
+<div class="w3-third w3-container" style="min-height:500px">
+<div class="weaponInfo w3-margin">
+	<div class="w3-dropdown-hover w3-margin">
+	  <button class="w3-button w3-teal" onClick="fillMainHand()" id="mainHandButton">Main Hand</button>
+	  <div class="w3-dropdown-content w3-bar-block w3-border" id="MHDiv">
+		<input class="w3-input w3-padding" type="text" placeholder="Search Main Hand.." id="userFilterMH" onkeyup="filterFunctionMH()">	  
+	  </div>
+	</div>
+	
+	<div class="w3-dropdown-hover w3-margin">
+	  <button class="w3-button w3-teal" onClick="fillOffHand()" id="offHandButton">Off Hand</button>
+	  <div class="w3-dropdown-content w3-bar-block w3-border" id="OHDiv">
+		<input class="w3-input w3-padding" type="text" placeholder="Search Off Hand.." id="userFilterOH" onkeyup="filterFunctionOH()">	  
+	  </div>
+	</div>	
+
+</div>
+</div>
+<div class="w3-third w3-container" style="min-height:500px">	
+	<div id="subWeaponList w3-margin">
+	<div class="w3-dropdown-hover w3-margin">
+	  <button class="w3-button w3-teal" onClick="fillSubweapon1()" id="sub1Button">Subweapon</button>
+	  <div class="w3-dropdown-content w3-bar-block w3-border" id="sub1Div">
+		<input class="w3-input w3-padding" type="text" placeholder="Search Subweapon.." id="userFilterSub1" onkeyup="filterFunctionSub1()">	  	  
+	  </div>
+	</div>	
+
+	<div class="w3-dropdown-hover w3-margin">
+	  <button class="w3-button w3-teal" onClick="fillSubweapon2()" id="sub2Button">Subweapon</button>
+	  <div class="w3-dropdown-content w3-bar-block w3-border" id="sub2Div">
+		<input class="w3-input w3-padding" type="text" placeholder="Search Subweapon.." id="userFilterSub2" onkeyup="filterFunctionSub2()">	  	  	  
+	  </div>
+	</div>		
+	
+	<div class="w3-dropdown-hover w3-margin">
+	  <button class="w3-button w3-teal" onClick="fillSubweapon3()" id="sub3Button">Subweapon</button>
+	  <div class="w3-dropdown-content w3-bar-block w3-border" id="sub3Div">		
+		<input class="w3-input w3-padding" type="text" placeholder="Search Subweapon.." id="userFilterSub3" onkeyup="filterFunctionSub3()">	  	  	  
+	  </div>
+	</div>			
+	</div>
+</div>
+<div class="w3-third w3-container" style="min-height:500px">
+	<div class="w3-dropdown-hover w3-margin">
+	  <button class="w3-button w3-teal" onClick="fillBlklist()"  id="blklist">Blacklist</button>
+	  <div class="w3-dropdown-content w3-bar-block w3-border" id="blklistDiv" >		
+		<input class="w3-input w3-padding" type="text" placeholder="Search Weapon.." id="userFilterBlklist" onkeyup="filterFunctionBlklist()">
+	  </div>
+	</div>		
+	<div class="w3-panel">
+		<ul class="w3-ul w3-border w3-light-grey" id="blklistList">
+		</ul>
+	</div>
+</div>
+
+<div class="sim w3-twoth">
+<a class="w3-button w3-teal" onClick="runSimMh()">Find best sub for Main</a>
+<a class="w3-button w3-teal" onClick="runSimOh()">Find best sub for Off</a>
+<a class="w3-button w3-teal" onClick="resetFunc()">Reset</a>
+</div>
+
+<div class="w3-light-blue w3-margin">
+  <div class="w3-container w3-green w3-center" style="width:0%" id="progressBar">0%</div>
+</div>
+
+<div id="output">
+</div>
+
+<div class="w3-panel" id="result">
+</div>
+
+<footer>
+  <div class="footer-copyright">
+	<div class="container w3-margin">
+	For bugs/feedbacks, contact Cantiga (OnlyMatt) on official/unofficial FF7EC discord &#169; 2024
+	</div>
+  </div>
+</footer>
+	<script src="util.js"></script>		
+	<script src="calculator.js"></script>	
+	<script src="sim_script.js"></script>
+	<script src="w3.js"></script>	
+</body>
+</html>
