@@ -130,6 +130,20 @@ function fillSubweapon(elementId) {
     dropdown.textContent = '';
     dropdown.appendChild(firstChild);
 
+    var item = document.createElement("a");
+    item.setAttribute('class', 'w3-bar-item w3-button');
+    item.innerHTML = "Reset";
+    item.onclick = function () {            
+        var divParent = this.parentNode.parentNode;
+
+        weaponSearchAndMarkAvailable(divParent.children[0].innerHTML, "Y");
+        weaponSearchAndMarkAvailable(this.innerHTML, "N");
+
+        divParent.children[0].innerHTML = "Subweapon";
+    };
+
+    dropdown.appendChild(item);
+
     // if there is a userlist, we use the userlist. If not we use the main database
     if (userWeapList.length == 0) {
         readWeaponDatabase();
@@ -161,6 +175,16 @@ function fillBlklist() {
 
     dropdown.textContent = '';
     dropdown.appendChild(firstChild);
+
+    var item = document.createElement("a");
+    item.setAttribute('class', 'w3-bar-item w3-button');
+    item.innerHTML = "Reset";
+    item.onclick = function () {
+        resetBlkList("blklistList");
+    };
+
+    dropdown.appendChild(item);
+
 
     // if there is a userlist, we use the userlist. If not we use the main database
     if (userWeapList.length == 0) {
@@ -879,6 +903,15 @@ function printWeapStat(weap) {
             return;
         }
     });
+}
+
+function resetBlkList(listName) {
+    var divParent = document.getElementById(listName);
+    while (divParent.firstChild) {
+        weaponSearchAndMarkAvailable(divParent.lastChild.innerHTML, "Y");
+        divParent.removeChild(divParent.lastChild);
+    }
+
 }
 
 function resetFunc() {
