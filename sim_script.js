@@ -837,6 +837,9 @@ function validateInput() {
     sub2 = document.getElementById("sub2Button").innerHTML;
     sub3 = document.getElementById("sub3Button").innerHTML;
 
+    mainHand = mainHand.replaceAll("&amp;", "&");
+    offHand = offHand.replaceAll("&amp;", "&");
+
     // Validate the data
     if (!weaponIsFoundInUserList(mainHand)) {
         mainHand = "";
