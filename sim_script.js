@@ -28,7 +28,7 @@ let weaponDatabase = [];
 var charName = ""; 
 let gearList = []; 
 let charNameList = [];
-var gear, mainHand, offHand, sub1, sub2, sub3;
+var gear, mainHand, offHand, ultimate, sub1, sub2, sub3;
 let simChar = [];
 var lastBreak = Date.now();
 var stopRunning = true;
@@ -81,6 +81,41 @@ function fillOffHand() {
     }
 
     outputCharWeapon(dropdown, userWeapList, charName);
+}
+
+function fillUltimate() {
+    if (!stopRunning) {
+        alert("Stopping in progress sim.");
+        stopRunning = true;
+    }
+
+    let dropdown = document.getElementById("ULDiv");
+    var firstChild = dropdown.children[0];  // Save the search Filter
+
+    dropdown.textContent = '';
+    dropdown.appendChild(firstChild);   //add back the search field
+
+    var item = document.createElement("a");
+    item.setAttribute('class', 'w3-bar-item w3-button');
+    item.innerHTML = "Reset";
+    item.onclick = function () {
+        var divParent = this.parentNode.parentNode;
+
+        weaponSearchAndMarkAvailable(divParent.children[0].innerHTML, "Y");
+        weaponSearchAndMarkAvailable(this.innerHTML, "N");
+
+        divParent.children[0].innerHTML = "Ultimate";
+    };
+
+    dropdown.appendChild(item);
+
+    // if there is a userlist, we use the userlist. If not we use the main database
+    if (userWeapList.length == 0) {
+        readWeaponDatabase();
+        populateUserWeapListUsingDatabase();
+    }
+
+    outputCharWeapon(dropdown, userWeapList, charName, true);
 }
 
 function fillCharacter() {
@@ -470,11 +505,19 @@ function outputResult(damage, character) {
     ul = document.createElement("ul");
 
     item = document.createElement("li");
+    item.innerHTML = "  Gear: " + character.gear;
+    ul.appendChild(item);
+
+    item = document.createElement("li");
     item.innerHTML = "  Main hand: " + character.mh;
     ul.appendChild(item);
 
     item = document.createElement("li");
     item.innerHTML = "  Off hand: " + character.oh;
+    ul.appendChild(item);
+
+    item = document.createElement("li");
+    item.innerHTML = "  Ultimate: " + character.ul;
     ul.appendChild(item);
 
     item = document.createElement("li");
@@ -686,14 +729,15 @@ function outputResult(damage, character) {
 }
 
 function weapAddWeaponStatstoCharStat(character) {
-    var foundMh = false, foundOh = false, foundSub1 = false, foundSub2 = false, foundSub3 = false;
+    var foundMh = false, foundOh = false, foundUL = false, foundSub1 = false, foundSub2 = false, foundSub3 = false;
 
     if (character.mainHand == "") { foundMh = true; }
     if (character.offHand == "") { foundOh = true; }
+    if (character.ul == "") { foundUL = true; }
     if (character.sub1 == "") { foundSub1 = true; }
     if (character.sub2 == "") { foundSub2 = true; }
     if (character.sub3 == "") { foundSub3 = true; }
-        
+
     for (var i = 0; i < userWeapList.length; i++) {
         var name = getValueFromDatabaseItem(userWeapList[i], "name");
 
@@ -710,6 +754,10 @@ function weapAddWeaponStatstoCharStat(character) {
             character.ohElem = userWeapList[i].element;
             character.ohType = userWeapList[i].type;
             foundOh = true;
+        }
+        else if (!foundUL && (character.ul == name)) {
+            addWeapontoCharStat(character, userWeapList[i], true);
+            foundUL = true;
         }
         else if (!foundSub1 && (character.sub1 == name)) {
             addWeapontoCharStat(character, userWeapList[i], false);
@@ -738,6 +786,7 @@ function initializeSimChar(character) {
     character.oh = offHand;
     character.ohType = "";
     character.ohElem = "";
+    character.ul = ultimate;
     character.sub1 = sub1;
     character.sub2 = sub2;
     character.sub3 = sub3;
@@ -833,12 +882,14 @@ function calcStatsForCharacterWeaponList() {
 function validateInput() {
     mainHand = document.getElementById("mainHandButton").innerHTML;
     offHand = document.getElementById("offHandButton").innerHTML;
+    ultimate = document.getElementById("UlButton").innerHTML;
     sub1 = document.getElementById("sub1Button").innerHTML;
     sub2 = document.getElementById("sub2Button").innerHTML;
     sub3 = document.getElementById("sub3Button").innerHTML;
 
     mainHand = mainHand.replaceAll("&amp;", "&");
     offHand = offHand.replaceAll("&amp;", "&");
+    ultimate = ultimate.replaceAll("&amp;", "&");
 
     // Validate the data
     if (!weaponIsFoundInUserList(mainHand)) {
@@ -847,6 +898,10 @@ function validateInput() {
 
     if (!weaponIsFoundInUserList(offHand)) {
         offHand = "";
+    }
+
+    if (!weaponIsFoundInUserList(ultimate)) {
+        ultimate = "";
     }
 
     if (mainHand == "") {
@@ -947,6 +1002,16 @@ function resetWeaponSelection() {
     input.innerHTML = "Off Hand";
     offHand = "";
 
+    input = document.getElementById("UlButton");
+    weaponSearchAndMarkAvailable(input.innerHTML, "Y");
+    input.innerHTML = "Ultimate";
+    ultimate = "";
+
+    input = document.getElementById("UlButton");
+    weaponSearchAndMarkAvailable(input.innerHTML, "Y");
+    input.innerHTML = "Ultimate";
+    ultimate = "";
+
     input = document.getElementById("sub1Button");
     weaponSearchAndMarkAvailable(input.innerHTML, "Y");
     input.innerHTML = "Subweapon";
@@ -981,6 +1046,10 @@ function filterFunctionChar() {
 
 function filterFunctionOH() {
     filterFunction("userFilterOH", "OHDiv", "a");
+}
+
+function userFilterUL() {
+    filterFunction("userFilterUL", "ULDiv", "a");
 }
 
 function filterFunctionSub1() {
@@ -1035,18 +1104,21 @@ function outputCharName(dropdown, nameList) {
 
 // Output the item in the itemList in the dropdown if the 
 // name matched the passed in name
-function outputCharWeapon(dropdown, itemList, charName) {
+function outputCharWeapon(dropdown, itemList, charName, isUl=false) {
     for (var i = 0; i < itemList.length; i++) {
         if ((getValueFromDatabaseItem(itemList[i], "charName") == charName) &&
             (getValueFromDatabaseItem(itemList[i], "avail") != "N")) {
-            var item = document.createElement("a");
-            item.setAttribute('class', 'w3-bar-item w3-button');
-            item.innerHTML = getValueFromDatabaseItem(itemList[i], "name");
-            item.onclick = function () {
-                replaceHeaderWithWeaponName(this);
-            };
 
-            dropdown.appendChild(item);
+            if (isULWeapon(getValueFromDatabaseItem(itemList[i], "name")) == isUl) {
+                var item = document.createElement("a");
+                item.setAttribute('class', 'w3-bar-item w3-button');
+                item.innerHTML = getValueFromDatabaseItem(itemList[i], "name");
+                item.onclick = function () {
+                    replaceHeaderWithWeaponName(this);
+                };
+
+                dropdown.appendChild(item);
+            }
         }
     }
 }
@@ -1054,16 +1126,33 @@ function outputCharWeapon(dropdown, itemList, charName) {
 function outputAllCharWeapon(dropdown, itemList) {
     for (var i = 0; i < itemList.length; i++) {
         if ((getValueFromDatabaseItem(itemList[i], "avail") != "N")) {
-            var item = document.createElement("a");
-            item.setAttribute('class', 'w3-bar-item w3-button');
-            item.innerHTML = getValueFromDatabaseItem(itemList[i], "name");
-            item.onclick = function () {
-                replaceHeaderWithWeaponName(this);
-            };
 
-            dropdown.appendChild(item);
+            // Don't output Ultimate weapon
+            if (!isULWeapon(getValueFromDatabaseItem(itemList[i], "name"))) {
+
+                var item = document.createElement("a");
+                item.setAttribute('class', 'w3-bar-item w3-button');
+                item.innerHTML = getValueFromDatabaseItem(itemList[i], "name");
+                item.onclick = function () {
+                    replaceHeaderWithWeaponName(this);
+                };
+
+                dropdown.appendChild(item);
+            }
         }
     }
+}
+
+function isULWeapon(name) {
+    for (var i = 0; i < weaponDatabase.length; i++) {
+        if (getValueFromDatabaseItem(weaponDatabase[i], "name") == name) {
+            if (getValueFromDatabaseItem(weaponDatabase[i], "isUl") == "Y") {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 function outputBlacklistWeaponList(dropdown, itemList) {
@@ -1216,7 +1305,14 @@ function populateUserWeapListUsingDatabase() {
         weapData.push({ name: 'name', value: getValueFromDatabaseItem(weaponDatabase[i], "name") });
         weapData.push({ name: 'charName', value: getValueFromDatabaseItem(weaponDatabase[i], "charName") });
         weapData.push({ name: 'level', value: '110' });
-        weapData.push({ name: 'ob', value: '10' });
+
+        if (getValueFromDatabaseItem(weaponDatabase[i], "isUl") == "Y") {
+            weapData.push({ name: 'ob', value: '0' }); // UL doesn't OB
+        }
+        else {
+            weapData.push({ name: 'ob', value: '10' });
+        }
+
         weapData.push({ name: 'extraOb', value: '' });
         weapData.push({ name: 'avail', value: '' }); // avail to sim
 
@@ -1346,6 +1442,9 @@ function readWeaponDatabase() {
             weapData.push({ name: 'rAbiilty2PtScale', value: row[i][36] });
             weapData.push({ name: 'r1', value: row[i][37] });
             weapData.push({ name: 'r2', value: row[i][38] });
+            weapData.push({ name: 'isUl', value: row[i][39] });
+            weapData.push({ name: 'effect1Range', value: row[i][40] });
+//            console.log(weapData);
 
             weaponDatabase.push(weapData);
         }

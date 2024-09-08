@@ -50,8 +50,12 @@ const RABILITY = Object.freeze({
     R_TYPE_DEFBUFF_EXT: { name: "Debuff Extension", value: "33" },
     R_TYPE_BUFFDEBUFF_EXT: { name: "Buff/Debuff Extension", value: "34" },
     R_TYPE_BUFFDEBUFF_EXT_PERCENT: { name: "Buff/Debuff Extension Percent", value: "35" },
-    R_TYPE_PATK_ALL: { name: "Boost PATK (All Allies)", value: "36" },
-    R_TYPE_MATK_ALL: { name: "Boost MATK (All Allies)", value: "37" }
+    R_TYPE_ATK_ALL: { name: "Boost ATK (All Allies)", value: "36" },
+    R_TYPE_ATK_ALL_PERCENT: { name: "Boost ATK (All Allies) Percent", value: "37" },
+    R_TYPE_PATK_ALL: { name: "Boost PATK (All Allies)", value: "38" },
+    R_TYPE_PATK_ALL_PERCENT: { name: "Boost PATK (All Allies) Percent", value: "39" },
+    R_TYPE_MATK_ALL: { name: "Boost MATK (All Allies)", value: "40" },
+    R_TYPE_MATK_ALL_PERCENT: { name: "Boost MATK (All Allies) Percent", value: "41" }
 });
 
 
@@ -63,9 +67,10 @@ const r1Table = [ [ 16, 3, 0, 7, 0, 0, 0, 6, 0, 2, 0, 2],
                   [ 24, 4, 0, 10, 0, 0, 0, 10, 0, 3, 0, 3],
                   [ 32, 6, 0, 14, 0, 0, 0, 12, 0, 4, 0, 4] ];
 
-const r2Table = [ [ 6, 0, 0, 0, 0, 4, 0, 0, 2, 0, 2, 0],
-                  [ 9, 0, 0, 0, 0, 6, 0, 0, 3, 0, 3, 0],
-                  [ 12, 0, 0, 0, 0, 8, 0, 0, 4, 0, 4, 0],
+const r2Table = [ [6, 0, 0, 0, 0, 4, 0, 0, 2, 0, 2, 0],
+                  [9, 0, 0, 0, 0, 6, 0, 0, 3, 0, 3, 0],
+                  [12, 0, 0, 0, 0, 8, 0, 0, 4, 0, 4, 0],
+                  [15, 0, 0, 0, 0, 5, 0, 0, 10, 0, 10, 0],
                   [4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 2, 0]];   // event weapon
 
 // Use look up table mechanics instead of adding up math like I did for level
@@ -80,7 +85,8 @@ const r1ObTable = [   [ 16, 0, 1, 1, 4, 4, 7, 7, 7, 10, 10, 11],
 
 const r2ObTable = [   [ 6, 0, 2, 6, 6, 10, 10, 10, 14, 14, 18, 18], 
                       [ 9, 0, 3, 9, 9, 15, 15, 15, 21, 21, 27, 27],
-                      [ 12, 0, 4, 12, 12, 20, 20, 20, 28, 28, 36, 36],
+                      [12, 0, 4, 12, 12, 20, 20, 20, 28, 28, 36, 36],
+                      [15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  // UL weapon
                       [ 4, 0, 2, 6, 6, 10, 10, 10, 14, 14, 18, 20] ];   // event weapon
 
 
@@ -137,7 +143,7 @@ function calcRAbilityStatBaseOnLevelAndOb(weap, element) {
     weap.r2value = newR2;
     
     if ((newR1 == 0 || newR2 == 0) && level > 50) {
-        console.log("name: " + getValueFromDatabaseItem(weap, "name") + " " + " R1: " + getValueFromDatabaseItem(element, "rAbiilty1PtScale") + " R2: " + getValueFromDatabaseItem(element, "rAbiilty2PtScale"))
+        console.log("Cannot calc R: " + getValueFromDatabaseItem(weap, "name") + " " + " R1: " + getValueFromDatabaseItem(element, "rAbiilty1PtScale") + " R2: " + getValueFromDatabaseItem(element, "rAbiilty2PtScale"))
     }
 }
 
@@ -411,6 +417,9 @@ function AddRFromGearToCharR(character, type, value, isFullValue) {
     else if (type == RABILITY.R_TYPE_MATK_ALL.value) {
         character.boostMatkAll += newValue;
     }
+    else if (type == RABILITY.R_TYPE_ATK_ALL.value) {
+        character.boostAtkAll += newValue;
+    }
 }
 
 function addWeapontoCharStat(character, weapon, isMh) {
@@ -487,6 +496,15 @@ function calcTotalStatFromCharR(character) {
 
 //        character.patk = Math.floor((character.patk + value) * (1 + percent));
 //        character.matk = Math.floor((character.matk + value) * (1 + percent));
+    }
+
+    if (character.boostAtkAll > 0) {
+        percent = calculateBoostAtkAllPercent(character.boostAtkAll);
+        value = calcExtraAtkFromAtkAll(percent);
+        matk_value += value;
+        patk_value += value;
+        MallPercent += percent;
+        PallPercent += percent;
     }
 
     if (character.boostPdef > 0) {
@@ -855,6 +873,44 @@ function calculateBoostPatkAllPercent(value) {
 
 function calculateBoostMatkAllPercent(value) {
     return calculateBoostPatkAllPercent(value);
+}
+
+function calculateBoostAtkAllPercent(value) {
+    if (value < 1) {
+        return 0;
+    }
+    else if (value < 5) {
+        return 0.03;
+    }
+    else if (value >= 5 && value < 15) {
+        return 0.05;
+    }
+/*    else if (value >= 15 && value < 25) {
+        return 0.07;
+    }
+    else if (value >= 25 && value < 35) {
+        return 0.09;
+    }
+    else if (value >= 35 && value < 45) {
+        return 0.11;
+    }
+    else if (value >= 45 && value < 55) {
+        return 0.25;
+    }*/
+    else {
+        return 0.05;
+    }
+}
+function calcExtraAtkFromAtkAll(percent) {
+    if (percent < 0.03) {
+        return 0;
+    }
+    else if (percent >= 0.03 && percent < 0.05) {
+        return 5;
+    }
+    else {
+        return 10;
+    }
 }
 
 function calcExtraPatkFromPatkAll( percent) {
