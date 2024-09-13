@@ -1444,6 +1444,7 @@ function readWeaponDatabase() {
             weapData.push({ name: 'r2', value: row[i][38] });
             weapData.push({ name: 'isUl', value: row[i][39] });
             weapData.push({ name: 'effect1Range', value: row[i][40] });
+            weapData.push({ name: 'uses', value: row[i][41] });
 //            console.log(weapData);
 
             weaponDatabase.push(weapData);
