@@ -1213,7 +1213,7 @@ function replaceHeaderWithGearName(cell) {
 function addItemToBlackList(cell){
     var output = document.getElementById("blklistList");
 
-    weaponSearchAndMarkAvailable(cell.innerHTML, "N");
+    weaponSearchAndMarkAvailable(cell.innerHTML.replaceAll("&amp;", "&"), "N");    
 
     var el = document.getElementById("blklistDiv").firstChild;
 
@@ -1247,7 +1247,7 @@ function removeItemFromBlackList(cell) {
         el = el.nextSibling;
     }
 
-    weaponSearchAndMarkAvailable(cell.innerHTML, "Y");
+    weaponSearchAndMarkAvailable(cell.innerHTML.replaceAll("&amp;", "&"), "Y");
 }
 
 function replaceHeaderWithWeaponName(cell) {
