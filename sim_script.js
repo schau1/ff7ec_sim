@@ -542,7 +542,7 @@ function outputResult(damage, character) {
 
     if (character.boostHp > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost HP: " + character.boostHp;
+        item.innerHTML = "  Boost HP: " + character.boostHp + " (" + calculateBoostHpPercentStr(character.boostHp) + ")";
         ul.appendChild(item);
     }
 
@@ -554,7 +554,7 @@ function outputResult(damage, character) {
 
     if (character.boostPatk > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost PATK: " + character.boostPatk;
+        item.innerHTML = "  Boost PATK: " + character.boostPatk + " (" + calculateBoostPatkPercent(character.boostPatk) + ")";
         ul.appendChild(item);
     }
 
@@ -565,7 +565,7 @@ function outputResult(damage, character) {
     }
     if (character.boostMatk > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost MATK: " + character.boostMatk;
+        item.innerHTML = "  Boost MATK: " + character.boostMatk + " (" + calculateBoostPatkPercentStr(character.boostMatk) + ")";
         ul.appendChild(item);
     }
     if (character.boostMatkPercent > 0) {
@@ -575,7 +575,7 @@ function outputResult(damage, character) {
     }
     if (character.boostAtk > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost ATK: " + character.boostAtk;
+        item.innerHTML = "  Boost ATK: " + character.boostAtk + " (" + calculateBoostPatkPercentStr(character.boostAtk) + ")";
         ul.appendChild(item);
     }
     if (character.boostAtkPercent > 0) {
@@ -605,7 +605,7 @@ function outputResult(damage, character) {
     }
     if (character.boostFirePot > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost Fire Pot.: " + character.boostFirePot;
+        item.innerHTML = "  Boost Fire Pot.: " + character.boostFirePot + " (" + calculateElementalPotPercentStr(character.boostFirePot) + ")";
         ul.appendChild(item);
     }
     if (character.boostFirePotPercent > 0) {
@@ -615,7 +615,7 @@ function outputResult(damage, character) {
     }
     if (character.boostIcePot > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost Ice Pot.: " + character.boostIcePot;
+        item.innerHTML = "  Boost Ice Pot.: " + character.boostIcePot + " (" + calculateElementalPotPercentStr(character.boostIcePot) + ")";
         ul.appendChild(item);
     }
     if (character.boostIcePotPercent > 0) {
@@ -625,7 +625,7 @@ function outputResult(damage, character) {
     }
     if (character.boostThunderPot > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost Lightning Pot.: " + character.boostThunderPot;
+        item.innerHTML = "  Boost Lightning Pot.: " + character.boostThunderPot + " (" + calculateElementalPotPercentStr(character.boostThunderPot) + ")";
         ul.appendChild(item);
     }
     if (character.boostThunderPotPercent > 0) {
@@ -635,7 +635,7 @@ function outputResult(damage, character) {
     }
     if (character.boostWaterPot > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost Water Pot.: " + character.boostWaterPot;
+        item.innerHTML = "  Boost Water Pot.: " + character.boostWaterPot + " (" + calculateElementalPotPercentStr(character.boostWaterPot) + ")";
         ul.appendChild(item);
     }
     if (character.boostWaterPotPercent > 0) {
@@ -645,7 +645,7 @@ function outputResult(damage, character) {
     }
     if (character.boostWindPot > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost Wind Pot.: " + character.boostWindPot;
+        item.innerHTML = "  Boost Wind Pot.: " + character.boostWindPot + " (" + calculateElementalPotPercentStr(character.boostWindPot) + ")";
         ul.appendChild(item);
     }
     if (character.boostWindPotPercent > 0) {
@@ -655,7 +655,7 @@ function outputResult(damage, character) {
     }
     if (character.boostEarthPot > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost Earth Pot.: " + character.boostEarthPot;
+        item.innerHTML = "  Boost Earth Pot.: " + character.boostEarthPot + " (" + calculateElementalPotPercentStr(character.boostEarthPot) + ")";
         ul.appendChild(item);
     }
     if (character.boostEarthPotPercent > 0) {
@@ -665,7 +665,7 @@ function outputResult(damage, character) {
     }
     if (character.boostPability > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost Phys. Ability Pot.: " + character.boostPability;
+        item.innerHTML = "  Boost Phys. Ability Pot.: " + character.boostPability + " (" + calculateAbilityPMPotPercentStr(character.boostPability) + ")";
         ul.appendChild(item);
     }
     if (character.boostPabilityPercent > 0) {
@@ -675,7 +675,7 @@ function outputResult(damage, character) {
     }
     if (character.boostMability > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost Mag. Ability Pot.: " + character.boostMability;
+        item.innerHTML = "  Boost Mag. Ability Pot.: " + character.boostMability + " (" + calculateAbilityPMPotPercentStr(character.boostMability) + ")";
         ul.appendChild(item);
     }
     if (character.boostMabilityPercent > 0) {
@@ -685,7 +685,7 @@ function outputResult(damage, character) {
     }
     if (character.boostAbility > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost Ability Pot.: " + character.boostAbility;
+        item.innerHTML = "  Boost Ability Pot.: " + character.boostAbility + " (" + calculateAbilityPotPercentStr(character.boostAbility) + ")";
         ul.appendChild(item);
     }
     if (character.boostAbilityPercent > 0) {
@@ -695,12 +695,12 @@ function outputResult(damage, character) {
     }
     if (character.boostPdef > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost PDEF: " + character.boostPdef;
+        item.innerHTML = "  Boost PDEF: " + character.boostPdef + " (" + calculateBoostPdefPercentStr(character.boostPdef) + ")";
         ul.appendChild(item);
     }
     if (character.boostMdef > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost MDEF: " + character.boostMdef;
+        item.innerHTML = "  Boost MDEF: " + character.boostMdef + " (" + calculateBoostPdefPercentStr(character.boostMdef) + ")";
         ul.appendChild(item);
     }
     if (character.boostDebuffExt > 0) {
@@ -715,12 +715,12 @@ function outputResult(damage, character) {
     }
     if (character.boostPatkAll > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost PATK (All): " + character.boostPatkAll;
+        item.innerHTML = "  Boost PATK (All): " + character.boostPatkAll + " (" + calculateBoostPatkAllPercentStr(character.boostPatkAll) + ")";;
         ul.appendChild(item);
     }
     if (character.boostMatkAll > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost MATK (All): " + character.boostMatkAll;
+        item.innerHTML = "  Boost MATK (All): " + character.boostMatkAll + " (" + calculateBoostPatkAllPercentStr(character.boostMatkAll) + ")";;
         ul.appendChild(item);
     }
 

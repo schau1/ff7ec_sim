@@ -653,6 +653,42 @@ function calculateBoostHpPercent(value) {
     }
 }
 
+function calculateBoostHpPercentStr(value) {
+    if (value < 1) {
+        return "Level 0";
+    }
+    else if (value < 5) {
+        return "Level 1";
+    }
+    else if (value >= 5 && value < 15) {
+        return "Level 2";
+    }
+    else if (value >= 15 && value < 25) {
+        return "Level 3";
+    }
+    else if (value >= 25 && value < 35) {
+        return "Level 4";
+    }
+    else if (value >= 35 && value < 45) {
+        return "Level 5";
+    }
+    else if (value >= 45 && value < 55) {
+        return "Level 6";
+    }
+    else if (value >= 55 && value < 65) {
+        return "Level 7";
+    }
+    else if (value >= 65 && value < 80) {
+        return "Level 8";
+    }
+    else if (value >= 80 && value < 100) {
+        return "Level 9";
+    }
+    else {
+        return "Level 10";
+    }
+}
+
 function calculateBoostHealPercent(value) {
     if (value < 1) {
         return 0;
@@ -689,6 +725,42 @@ function calculateBoostHealPercent(value) {
     }
 }
 
+function calculateBoostHealPercentStr(value) {
+    if (value < 1) {
+        return "Level 0";
+    }
+    else if (value < 5) {
+        return "Level 1";
+    }
+    else if (value >= 5 && value < 15) {
+        return "Level 2";
+    }
+    else if (value >= 15 && value < 25) {
+        return "Level 3";
+    }
+    else if (value >= 25 && value < 35) {
+        return "Level 4";
+    }
+    else if (value >= 35 && value < 45) {
+        return "Level 5";
+    }
+    else if (value >= 45 && value < 55) {
+        return "Level 6";
+    }
+    else if (value >= 55 && value < 65) {
+        return "Level 7";
+    }
+    else if (value >= 65 && value < 80) {
+        return "Level 8";
+    }
+    else if (value >= 80 && value < 100) {
+        return "Level 9";
+    }
+    else {
+        return "Level 10";
+    }
+}
+
 // Calculate Ability Potency %
 function calculateAbilityPotPercent(value) {
     if (value < 1) {
@@ -714,6 +786,33 @@ function calculateAbilityPotPercent(value) {
     }
     else {
         return 0.40;
+    }
+}
+
+function calculateAbilityPotPercentStr(value) {
+    if (value < 1) {
+        return "Level 0";
+    }
+    else if (value < 5) {
+        return "Level 1";
+    }
+    else if (value >= 5 && value < 15) {
+        return "Level 2";
+    }
+    else if (value >= 15 && value < 25) {
+        return "Level 3";
+    }
+    else if (value >= 25 && value < 35) {
+        return "Level 4";
+    }
+    else if (value >= 35 && value < 45) {
+        return "Level 5";
+    }
+    else if (value >= 45 && value < 55) {
+        return "Level 6";
+    }
+    else {
+        return "Level 7";
     }
 }
 
@@ -744,6 +843,34 @@ function calculateAbilityPMPotPercent(value) {
         return 0.80;
     }
 }
+
+function calculateAbilityPMPotPercentStr(value) {
+    if (value < 1) {
+        return "Level 0";
+    }
+    else if (value < 5) {
+        return "Level 1";
+    }
+    else if (value >= 5 && value < 15) {
+        return "Level 2";
+    }
+    else if (value >= 15 && value < 25) {
+        return "Level 3";
+    }
+    else if (value >= 25 && value < 35) {
+        return "Level 4";
+    }
+    else if (value >= 35 && value < 45) {
+        return "Level 5";
+    }
+    else if (value >= 45 && value < 55) {
+        return "Level 6";
+    }
+    else {
+        return "Level 7";
+    }
+}
+
 
 // Calculate Elemental Potency %
 function calculateElementalPotPercent(value) {
@@ -782,6 +909,42 @@ function calculateElementalPotPercent(value) {
     }
 }
 
+function calculateElementalPotPercentStr(value) {
+    if (value < 1) {
+        return "Level 0";
+    }
+    else if (value < 5) {
+        return "Level 1";
+    }
+    else if (value >= 5 && value < 15) {
+        return "Level 2";
+    }
+    else if (value >= 15 && value < 25) {
+        return "Level 3";
+    }
+    else if (value >= 25 && value < 35) {
+        return "Level 4";
+    }
+    else if (value >= 35 && value < 45) {
+        return "Level 5";
+    }
+    else if (value >= 45 && value < 55) {
+        return "Level 6";
+    }
+    else if (value >= 55 && value < 65) {
+        return "Level 7";
+    }
+    else if (value >= 65 && value < 80) {
+        return "Level 8";
+    }
+    else if (value >= 80 && value < 100) {
+        return "Level 9";
+    }
+    else {
+        return "Level 10";
+    }
+}
+
 function calculateBoostPatkPercent(value) {
     if (value < 1) {
         return 0;
@@ -809,6 +972,35 @@ function calculateBoostPatkPercent(value) {
     }
 
     return 0;
+}
+
+function calculateBoostPatkPercentStr(value) {
+    if (value < 1) {
+        return "Level 0";
+    }
+    else if (value < 5) {
+        return "Level 1";
+    }
+    else if (value >= 5 && value < 15) {
+        return "Level 2";
+    }
+    else if (value >= 15 && value < 25) {
+        return "Level 3";
+    }
+    else if (value >= 25 && value < 35) {
+        return "Level 4";
+    }
+    else if (value >= 35 && value < 45) {
+        return "Level 5";
+    }
+    else if (value >= 45 && value < 55) {
+        return "Level 6";
+    }
+    else if (value >= 55) {
+        return "Level 7";
+    }
+
+    return "Level 0";
 }
 
 function calculateBoostMatkPercent(value) {
@@ -844,6 +1036,33 @@ function calculateBoostAtkPercent(value) {
     return 0;
 }
 
+function calculateBoostPatkAllPercentStr(value) {
+    if (value < 1) {
+        return "Level 0";
+    }
+    else if (value < 5) {
+        return "Level 1";
+    }
+    else if (value >= 5 && value < 15) {
+        return "Level 2";
+    }
+    else if (value >= 15 && value < 25) {
+        return "Level 3";
+    }
+    else if (value >= 25 && value < 35) {
+        return "Level 4";
+    }
+    else if (value >= 35 && value < 45) {
+        return "Level 5";
+    }
+    else if (value >= 45 && value < 55) {
+        return "Level 6";
+    }
+    else {
+        return "Level 7";
+    }
+}
+
 function calculateBoostPatkAllPercent(value) {
     if (value < 1) {
         return 0;
@@ -870,6 +1089,7 @@ function calculateBoostPatkAllPercent(value) {
         return 0.28;
     }
 }
+
 
 function calculateBoostMatkAllPercent(value) {
     return calculateBoostPatkAllPercent(value);
@@ -939,7 +1159,6 @@ function calcExtraPatkFromPatkAll( percent) {
     }
 }
 
-
 function calculateBoostPdefPercent(value) {
     if (value < 1) {
         return 0;
@@ -966,6 +1185,34 @@ function calculateBoostPdefPercent(value) {
         return 0.80;
     }
 }
+
+function calculateBoostPdefPercentStr(value) {
+    if (value < 1) {
+        return "Level 0";
+    }
+    else if (value < 5) {
+        return "Level 1";
+    }
+    else if (value >= 5 && value < 15) {
+        return "Level 2";
+    }
+    else if (value >= 15 && value < 25) {
+        return "Level 3";
+    }
+    else if (value >= 25 && value < 35) {
+        return "Level 4";
+    }
+    else if (value >= 35 && value < 45) {
+        return "Level 5";
+    }
+    else if (value >= 45 && value < 55) {
+        return "Level 6";
+    }
+    else {
+        return "Level 7";
+    }
+}
+
 
 function calculateBoostMdefPercent(value) {
     return calculateBoostPdefPercent(value);
