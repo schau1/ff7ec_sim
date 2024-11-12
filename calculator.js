@@ -91,11 +91,10 @@ const r2ObTable = [   [ 6, 0, 2, 6, 6, 10, 10, 10, 14, 14, 18, 18],
 
 
 function calcStatBaseOnLevelAndOb(weap) {
-
-    var name = getValueFromDatabaseItem(weap, "name");
+    var name = weap.name;
 
     weaponDatabase.forEach(function (element) {
-        if (name == getValueFromDatabaseItem(element, "name")) {
+        if (name == element.name) {
             weap.element = element.element;
 
             calcRAbilityStatBaseOnLevelAndOb(weap, element);
@@ -105,25 +104,25 @@ function calcStatBaseOnLevelAndOb(weap) {
             weap.matk = calcMatkBaseOnLevelAndOb(weap, element);
             weap.pot = calcSkillPotencyBaseOnOb(weap, element);    // assume single target
 
-            weap.type = getValueFromDatabaseItem(element, "type");  // Mag. or Phys.
-            weap.element = getValueFromDatabaseItem(element, "element");
-            weap.range = getValueFromDatabaseItem(element, "range");         
+            weap.type = element.type;  // Mag. or Phys.
+            weap.element = element.element;
+            weap.range = element.range; 
 
-            weap.r1 = getValueFromDatabaseItem(element, "r1");        
-            weap.r2 = getValueFromDatabaseItem(element, "r2");        
+            weap.r1 = element.r1;        
+            weap.r2 = element.r2;        
             return;
         }
     });   
 }
 
 function calcRAbilityStatBaseOnLevelAndOb(weap, element) {
-    var level = parseInt(getValueFromDatabaseItem(weap, "level"));
-    var ob = parseInt(getValueFromDatabaseItem(weap, "ob"));
+    var level = parseInt(weap.level);
+    var ob = parseInt(weap.ob);
     var newR1 = 0, newR2 = 0;
 
     for (var row = 0; row < r1Table.length; row++)
     {
-        if (getValueFromDatabaseItem(element, "rAbiilty1PtScale") == r1Table[row][0]) {
+        if (element.rAbiilty1PtScale == r1Table[row][0]) {
             newR1 = calcRBaseOnLevel(level, r1Table[row], r1Table[row].length);
             newR1 += calcRBaseOnOb(ob, r1ObTable[row], r1ObTable[row].length);
             break;
@@ -132,7 +131,7 @@ function calcRAbilityStatBaseOnLevelAndOb(weap, element) {
 
     for (var row = 0; row < r2Table.length; row++)
     {
-        if (getValueFromDatabaseItem(element, "rAbiilty2PtScale") == r2Table[row][0]) {
+        if (element.rAbiilty2PtScale == r2Table[row][0]) {
             newR2 = calcRBaseOnLevel(level, r2Table[row], r2Table[row].length);
             newR2 += calcRBaseOnOb(ob, r2ObTable[row], r2ObTable[row].length);
             break;
@@ -143,7 +142,7 @@ function calcRAbilityStatBaseOnLevelAndOb(weap, element) {
     weap.r2value = newR2;
     
     if ((newR1 == 0 || newR2 == 0) && level > 50) {
-        console.log("Cannot calc R: " + getValueFromDatabaseItem(weap, "name") + " " + " R1: " + getValueFromDatabaseItem(element, "rAbiilty1PtScale") + " R2: " + getValueFromDatabaseItem(element, "rAbiilty2PtScale"))
+        console.log("Cannot calc R: " + weap.name + " " + " R1: " + element.rAbiilty1PtScale + " R2: " + element.rAbiilty2PtScale)
     }
 }
 
@@ -215,10 +214,10 @@ function calcRBaseOnLevel(level, table, maxCol) {
 }
 
 function calcHealBaseOnLevelAndOb(weap, element) {
-    var level = parseInt(getValueFromDatabaseItem(weap, "level"));
-    var heal = parseInt(getValueFromDatabaseItem(element, "heal"));
-    var healLvl1 = parseInt(getValueFromDatabaseItem(element, "healLvl1"));
-    var ob = parseInt(getValueFromDatabaseItem(weap, "ob"));
+    var level = parseInt(weap.level);
+    var heal = parseInt(element.heal);
+    var healLvl1 = parseInt(element.healLvl1);
+    var ob = parseInt(weap.ob);
 
     // calcStatGain based on level
     var value = calcStatgainBaseOnLevel(healLvl1, heal, level);
@@ -232,10 +231,10 @@ function calcHealBaseOnLevelAndOb(weap, element) {
 }
 
 function calcPatkBaseOnLevelAndOb(weap, element) {
-    var level = parseInt(getValueFromDatabaseItem(weap, "level"));
-    var stat = parseInt(getValueFromDatabaseItem(element, "patk"));
-    var statLvl1 = parseInt(getValueFromDatabaseItem(element, "patkLvl1"));
-    var ob = parseInt(getValueFromDatabaseItem(weap, "ob"));
+    var level = parseInt(weap.level);
+    var stat = parseInt(element.patk);
+    var statLvl1 = parseInt(element.patkLvl1);
+    var ob = parseInt(weap.ob);
 
     // calcStatGain based on level
     var value = calcStatgainBaseOnLevel(statLvl1, stat, level);
@@ -249,10 +248,10 @@ function calcPatkBaseOnLevelAndOb(weap, element) {
 }
 
 function calcMatkBaseOnLevelAndOb(weap, element) {
-    var level = parseInt(getValueFromDatabaseItem(weap, "level"));
-    var stat = parseInt(getValueFromDatabaseItem(element, "matk"));
-    var statLvl1 = parseInt(getValueFromDatabaseItem(element, "matkLvl1"));
-    var ob = parseInt(getValueFromDatabaseItem(weap, "ob"));
+    var level = parseInt(weap.level);
+    var stat = parseInt(element.matk);
+    var statLvl1 = parseInt(element.matkLvl1);
+    var ob = parseInt(weap.ob);
 
     // calcStatGain based on level
     var value = calcStatgainBaseOnLevel(statLvl1, stat, level);
@@ -284,20 +283,20 @@ function calcStatgainBaseOnLevel(statLvl1, stat, level) {
 }
 
 function calcSkillPotencyBaseOnOb(weap, element) {
-    var ob = parseInt(getValueFromDatabaseItem(weap, "ob"));
+    var ob = parseInt(weap.ob);
     var pot;
 
     if (ob == 10) {
-        pot = getValueFromDatabaseItem(element, "potOb10");
+        pot = element.potOb10;
     }
     else if (ob == 0) {
-        pot = getValueFromDatabaseItem(element, "potOb0");        
+        pot = element.potOb0;        
     }
     else if (ob >= 1 && ob < 6) {
-        pot = getValueFromDatabaseItem(element, "potOb1");
+        pot = element.potOb1;
     }
     else {
-        pot = getValueFromDatabaseItem(element, "potOb6");
+        pot = element.potOb6;
     }
 
     return parseInt(pot)/100;

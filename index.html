@@ -44,14 +44,29 @@ weapons are OB10 and level 110.</b>
 
 <script> 
   document.getElementById('inputFile').addEventListener('change', async function(event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const buffer = e.target.result;
-      // Process the data
-		processUserData(e.target.result);
-    };
-    reader.readAsText(file);
+	  const file = event.target.files[0];
+	  var isJson = false;
+	  if (typeof file != 'undefined') {
+		  if (file.name.slice(file.name.lastIndexOf('.') + 1).toLowerCase() == 'json') {
+			  isJson = true;
+		  }
+	  }
+	  else {
+		  return;
+	  }
+
+	  const reader = new FileReader();
+	  reader.onload = function (e) {
+		  const buffer = e.target.result;
+		  // Process the data
+		  if (isJson) {
+			  processUserJsonData(e.target.result);
+		  }
+		  else {
+			  processUserData(e.target.result);
+		  }
+	  };
+	  reader.readAsText(file);
   });  
 </script>	
 

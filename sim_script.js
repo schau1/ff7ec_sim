@@ -38,6 +38,7 @@ var lastBarUpdate = Date.now();
 readCharDatabase();
 readWeaponDatabase();
 readGearDatabase();
+//processUserJsonData();
 
 // -------------- Start of UI function
 // These are functions called from HTML
@@ -231,11 +232,15 @@ function fillBlklist() {
 }
 
 function runSimMh() {
-    runSim(true);
+    if (!runSim(true)) {
+        console.log("Fail to run sim");
+    }
 }
 
 function runSimOh() {
-    runSim(false);
+    if (!runSim(false)) {
+        console.log("Fail to run sim");
+    }
 }
 
 /* ------------- Sim functions start -------------------*/
@@ -268,7 +273,11 @@ function runSim(simMH) {
             console.log("Sim took " + ms + "ms");
             stopRunning = true;
         });
+
+        return true;
     }   
+
+    return false;
 }
 
 function pause() {
@@ -346,18 +355,18 @@ async function simBestSub(character, mainHand) {
     for (var i = 0; i < userWeapList.length; i++)     {
         await shouldIPause();
         // If we have a main hand or an off hand, we move on
-        if ((getValueFromDatabaseItem(userWeapList[i], "name") == character.mh) ||
-            (getValueFromDatabaseItem(userWeapList[i], "name") == character.oh)) {
-            setValueToDatabaseItem(userWeapList[i], "avail", "N");
+        if ((userWeapList[i].name == character.mh) ||
+            (userWeapList[i].name == character.oh)) {
+            userWeapList[i].avail = "N";
             continue;
         }
 
-        if ((getValueFromDatabaseItem(userWeapList[i], "avail") == "N") &&
-            (getValueFromDatabaseItem(userWeapList[i], "name") != character.sub1))
+        if ((userWeapList[i].avail == "N") &&
+            (userWeapList[i].name != character.sub1))
             continue;
 
         // If we already have a sub1 weapon, we will find the weapon in the list and sim only that one
-        if (!findSub1 && (getValueFromDatabaseItem(userWeapList[i], "name") != character.sub1))
+        if (!findSub1 && (userWeapList[i].name != character.sub1))
             continue;
 
         if (stopRunning) {
@@ -365,27 +374,27 @@ async function simBestSub(character, mainHand) {
         }
 
         for (var j = 0; j != userWeapList.length; j++)         {
-            if ((getValueFromDatabaseItem(userWeapList[j], "avail") == "N") &&
-                (getValueFromDatabaseItem(userWeapList[j], "name") != character.sub2))
+            if ((userWeapList[j].avail == "N") &&
+                (userWeapList[j].name != character.sub2))
                 continue;
 
-            if ((getValueFromDatabaseItem(userWeapList[j], "name") == getValueFromDatabaseItem(userWeapList[i], "name")) ||
-                (getValueFromDatabaseItem(userWeapList[j], "name") == character.mh) ||
-                (getValueFromDatabaseItem(userWeapList[j], "name") == character.oh))
+            if ((userWeapList[j].name == userWeapList[i].name) ||
+                (userWeapList[j].name == character.mh) ||
+                (userWeapList[j].name == character.oh))
                 continue;
 
             // If we already have a sub2 weapon, we will find the weapon in the list and sim only that one
-            if (!findSub2 && (getValueFromDatabaseItem(userWeapList[j], "name") != character.sub2))
+            if (!findSub2 && (userWeapList[j].name != character.sub2))
                 continue;
 
             for (var z = 0; z != userWeapList.length; z++)             {
-                if ((getValueFromDatabaseItem(userWeapList[z], "name") == getValueFromDatabaseItem(userWeapList[j], "name")) ||
-                    (getValueFromDatabaseItem(userWeapList[z], "name") == getValueFromDatabaseItem(userWeapList[i], "name")) ||
-                    (getValueFromDatabaseItem(userWeapList[z], "name") == character.mh) ||
-                    (getValueFromDatabaseItem(userWeapList[z], "name") == character.oh))
+                if ((userWeapList[z].name == userWeapList[j].name) ||
+                    (userWeapList[z].name == userWeapList[i].name) ||
+                    (userWeapList[z].name == character.mh) ||
+                    (userWeapList[z].name == character.oh))
                     continue;
 
-                if (getValueFromDatabaseItem(userWeapList[z], "avail") == "N")
+                if (userWeapList[z].avail == "N")
                     continue;
 
                 // WTF are we doing if we're not looking for any weapon
@@ -393,9 +402,15 @@ async function simBestSub(character, mainHand) {
                     continue;
 
                 sim = { ...character }; 
-                sim.sub1 = getValueFromDatabaseItem(userWeapList[i], "name");
-                sim.sub2 = getValueFromDatabaseItem(userWeapList[j], "name");
-                sim.sub3 = getValueFromDatabaseItem(userWeapList[z], "name");
+                sim.sub1 = userWeapList[i].name;
+                sim.sub1ob = userWeapList[i].ob;
+                sim.sub1lvl = userWeapList[i].level;
+                sim.sub2 = userWeapList[j].name;
+                sim.sub2ob = userWeapList[j].ob;
+                sim.sub2lvl = userWeapList[j].level;
+                sim.sub3 = userWeapList[z].name;
+                sim.sub3ob = userWeapList[z].ob;
+                sim.sub3lvl = userWeapList[z].level;
 
                 var damage = FillSubWeaponAndCalcDamage(sim, mainHand);
 
@@ -420,6 +435,12 @@ async function simBestSub(character, mainHand) {
     character.sub1 = bestStatMH.sub1;
     character.sub2 = bestStatMH.sub2;
     character.sub3 = bestStatMH.sub3;
+    character.sub1ob = bestStatMH.sub1ob;
+    character.sub2ob = bestStatMH.sub2ob;
+    character.sub3ob = bestStatMH.sub3ob;
+    character.sub1lvl = bestStatMH.sub1lvl;
+    character.sub2lvl = bestStatMH.sub2lvl;
+    character.sub3lvl = bestStatMH.sub3lvl;
 
     return bestDmg;
 }
@@ -509,11 +530,11 @@ function outputResult(damage, character) {
     ul.appendChild(item);
 
     item = document.createElement("li");
-    item.innerHTML = "  Main hand: " + character.mh;
+    item.innerHTML = "  Main hand: " + character.mh + "      OB" + character.mhOb + " Level " + character.mhLvl;
     ul.appendChild(item);
 
     item = document.createElement("li");
-    item.innerHTML = "  Off hand: " + character.oh;
+    item.innerHTML = "  Off hand: " + character.oh + "     OB" + character.ohOb + " Level " + character.ohLvl;
     ul.appendChild(item);
 
     item = document.createElement("li");
@@ -521,15 +542,15 @@ function outputResult(damage, character) {
     ul.appendChild(item);
 
     item = document.createElement("li");
-    item.innerHTML = "  Subweapon: " + character.sub1;
+    item.innerHTML = "  Subweapon: " + character.sub1 + "     OB" + character.sub1ob + " Level " + character.sub1lvl;
     ul.appendChild(item);
 
     item = document.createElement("li");
-    item.innerHTML = "  Subweapon: " + character.sub2;
+    item.innerHTML = "  Subweapon: " + character.sub2 + "     OB" + character.sub2ob + " Level " + character.sub2lvl;
     ul.appendChild(item);
 
     item = document.createElement("li");
-    item.innerHTML = "  Subweapon: " + character.sub3;
+    item.innerHTML = "  Subweapon: " + character.sub3 + "     OB" + character.sub3ob + " Level " + character.sub3lvl;
     ul.appendChild(item);
 
     element.appendChild(ul);
@@ -739,13 +760,15 @@ function weapAddWeaponStatstoCharStat(character) {
     if (character.sub3 == "") { foundSub3 = true; }
 
     for (var i = 0; i < userWeapList.length; i++) {
-        var name = getValueFromDatabaseItem(userWeapList[i], "name");
+        var name = userWeapList[i].name;
 
         if (!foundMh && (character.mh == name)) {
             addWeapontoCharStat(character, userWeapList[i], true);
             character.mhPot = userWeapList[i].pot;
             character.mhElem = userWeapList[i].element;
             character.mhType = userWeapList[i].type;
+            character.mhOb = userWeapList[i].ob;
+            character.mhLvl = userWeapList[i].level;
             foundMH = true;
         }
         else if (!foundOh && (character.oh == name)) {
@@ -753,6 +776,8 @@ function weapAddWeaponStatstoCharStat(character) {
             character.ohPot = userWeapList[i].pot;
             character.ohElem = userWeapList[i].element;
             character.ohType = userWeapList[i].type;
+            character.ohOb = userWeapList[i].ob;
+            character.ohLvl = userWeapList[i].level;
             foundOh = true;
         }
         else if (!foundUL && (character.ul == name)) {
@@ -781,15 +806,25 @@ function weapAddWeaponStatstoCharStat(character) {
 function initializeSimChar(character) {
     character.name = charName;
     character.mh = mainHand;
+    character.mhOb = 0;
+    character.mhLvl = 0;
     character.mhType = "";
     character.mhElem = "";
     character.oh = offHand;
+    character.ohOb = 0;
+    character.ohLvl = 0;
     character.ohType = "";
     character.ohElem = "";
     character.ul = ultimate;
     character.sub1 = sub1;
     character.sub2 = sub2;
     character.sub3 = sub3;
+    character.sub1ob = 0;
+    character.sub2ob = 0;
+    character.sub3ob = 0;
+    character.sub1lvl = 0;
+    character.sub2lvl = 0;
+    character.sub3lvl = 0;
     character.gear = gear;
     character.boostHp = 0;
     character.boostHpPercent = 0;
@@ -832,11 +867,11 @@ function initializeSimChar(character) {
 
 function charSetStatsFromDatabase(simChar) {
     charNameList.forEach(function (char) {
-        if (getValueFromDatabaseItem(char, "name") == simChar.name) {
-            simChar.hp = parseInt(getValueFromDatabaseItem(char, "hp"));
-            simChar.patk = parseInt(getValueFromDatabaseItem(char, "patk"));
-            simChar.matk = parseInt(getValueFromDatabaseItem(char, "matk"));
-            simChar.heal = parseInt(getValueFromDatabaseItem(char, "heal"));            
+        if (char.name == simChar.name) {
+            simChar.hp = char.hp;
+            simChar.patk = char.patk;
+            simChar.matk = char.matk;
+            simChar.heal = char.heal;
             return;
         }
     });
@@ -845,26 +880,26 @@ function charSetStatsFromDatabase(simChar) {
 function gearAddRFromGearToCharR(char) {
 
     gearList.forEach(function (gear) {
-        if (getValueFromDatabaseItem(gear, "name") == char.gear) {
+        if (gear.name == char.gear) {
 
-            var rValue = parseInt(getValueFromDatabaseItem(gear, "r1value"));
+            var rValue = gear.r1value;
             if (rValue > 0) {
-                AddRFromGearToCharR(char, getValueFromDatabaseItem(gear, "r1"), rValue, true);
+                AddRFromGearToCharR(char, gear.r1, rValue, true);
             }
 
-            rValue = parseInt(getValueFromDatabaseItem(gear, "r2value"));
+            rValue = gear.r2value;
             if (rValue > 0) {
-                AddRFromGearToCharR(char, getValueFromDatabaseItem(gear, "r2"), rValue, true);
+                AddRFromGearToCharR(char, gear.r2, rValue, true);
             }
 
-            rValue = parseInt(getValueFromDatabaseItem(gear, "r3value"));
+            rValue = parseInt(gear.r3value);
             if (rValue > 0) {
-                AddRFromGearToCharR(char, getValueFromDatabaseItem(gear, "r3"), rValue, true);
+                AddRFromGearToCharR(char, gear.r3, rValue, true);
             }
 
-            rValue = parseInt(getValueFromDatabaseItem(gear, "r4value"));
+            rValue = parseInt(gear.r4value);
             if (rValue > 0) {
-                AddRFromGearToCharR(char, getValueFromDatabaseItem(gear, "r4"), rValue, true);
+                AddRFromGearToCharR(char, gear.r4, rValue, true);
             }
             return;
         }
@@ -949,9 +984,9 @@ function validateInput() {
 
 function printWeapStat(weap) {
 
-    var name = getValueFromDatabaseItem(weap, "name");
+    var name = weap.name;
     userWeapList.forEach(function (elem) {
-        if (name == getValueFromDatabaseItem(elem, "name")) {
+        if (name == elem.name) {
             console.log("Name: " + name);
             console.log("   Pot: " + elem.pot);
             console.log("   HP: " + elem.hp);
@@ -987,6 +1022,8 @@ function resetFunc() {
     }
 
     resetWeaponSelection();
+
+    databaseLoaded = false;
 
     stopRunning = true;
 }
@@ -1075,10 +1112,10 @@ function filterFunctionBlklist() {
 
 function outputCharGear(dropdown, list) {
     for (var i = 0; i < list.length; i++) {
-        if (getValueFromDatabaseItem(list[i], "charName") == charName){
+        if (list[i].charName == charName){
             var item = document.createElement("a");
             item.setAttribute('class', 'w3-bar-item w3-button');
-            item.innerHTML = getValueFromDatabaseItem(list[i], "name");
+            item.innerHTML = list[i].name;
             item.onclick = function () {
                 replaceHeaderWithGearName(this);
             };
@@ -1092,7 +1129,7 @@ function outputCharName(dropdown, nameList) {
     for (var i = 0; i < nameList.length; i++) {
         var item = document.createElement("a");
         item.setAttribute('class', 'w3-bar-item w3-button');
-        item.innerHTML = getValueFromDatabaseItem(nameList[i], "name");
+        item.innerHTML = nameList[i].name;
         item.onclick = function () {
             replaceHeaderWithCharName(this);
             resetWeaponSelection();
@@ -1106,13 +1143,13 @@ function outputCharName(dropdown, nameList) {
 // name matched the passed in name
 function outputCharWeapon(dropdown, itemList, charName, isUl=false) {
     for (var i = 0; i < itemList.length; i++) {
-        if ((getValueFromDatabaseItem(itemList[i], "charName") == charName) &&
-            (getValueFromDatabaseItem(itemList[i], "avail") != "N")) {
+        if ((itemList[i].charName == charName) &&
+            (itemList[i].avail != "N")) {
 
-            if (isULWeapon(getValueFromDatabaseItem(itemList[i], "name")) == isUl) {
+            if (isULWeapon(itemList[i].name) == isUl) {
                 var item = document.createElement("a");
                 item.setAttribute('class', 'w3-bar-item w3-button');
-                item.innerHTML = getValueFromDatabaseItem(itemList[i], "name");
+                item.innerHTML = itemList[i].name;
                 item.onclick = function () {
                     replaceHeaderWithWeaponName(this);
                 };
@@ -1125,15 +1162,15 @@ function outputCharWeapon(dropdown, itemList, charName, isUl=false) {
 
 function outputAllCharWeapon(dropdown, itemList) {
     for (var i = 0; i < itemList.length; i++) {
-        if ((getValueFromDatabaseItem(itemList[i], "avail") != "N")) {
+        if (itemList[i].avail != "N") {
 
             // Don't output Ultimate weapon
-            if (!isULWeapon(getValueFromDatabaseItem(itemList[i], "name"))) {
+            if (!isULWeapon(itemList[i].name)) {
 
                 var item = document.createElement("a");
                 item.setAttribute('class', 'w3-bar-item w3-button');
-                item.innerHTML = getValueFromDatabaseItem(itemList[i], "name");
-                item.onclick = function () {
+                item.innerHTML = itemList[i].name;
+                item.onclick = function () { 
                     replaceHeaderWithWeaponName(this);
                 };
 
@@ -1145,8 +1182,8 @@ function outputAllCharWeapon(dropdown, itemList) {
 
 function isULWeapon(name) {
     for (var i = 0; i < weaponDatabase.length; i++) {
-        if (getValueFromDatabaseItem(weaponDatabase[i], "name") == name) {
-            if (getValueFromDatabaseItem(weaponDatabase[i], "isUl") == "Y") {
+        if (weaponDatabase[i].name == name) {
+            if (weaponDatabase[i].isUl == "Y") {
                 return true;
             }
         }
@@ -1157,10 +1194,10 @@ function isULWeapon(name) {
 
 function outputBlacklistWeaponList(dropdown, itemList) {
     for (var i = 0; i < itemList.length; i++) {
-        if ((getValueFromDatabaseItem(itemList[i], "avail") != "N")) {
+        if (itemList[i].avail != "N") {
             var item = document.createElement("a");
             item.setAttribute('class', 'w3-bar-item w3-button');
-            item.innerHTML = getValueFromDatabaseItem(itemList[i], "name");
+            item.innerHTML = itemList[i].name;
             item.onclick = function () {
                 addItemToBlackList(this);
             };
@@ -1174,22 +1211,32 @@ function outputBlacklistWeaponList(dropdown, itemList) {
 // Set the value to avail
 function weaponSearchAndMarkAvailable(name, avail) {
     for (var i = 0; i < userWeapList.length; i++) {
-        if (getValueFromDatabaseItem(userWeapList[i], "name") == name) {
-            setValueToDatabaseItem(userWeapList[i], "avail", avail);
+        if (userWeapList[i].name == name) {
+            userWeapList[i].avail = avail;
         }
     }
 }
 function weaponIsFoundInUserList(name) {
     for (var i = 0; i < userWeapList.length; i++) {
-        if (getValueFromDatabaseItem(userWeapList[i], "name") == name) {
+        if (userWeapList[i].name == name) {
             return true;
         }
     }
     return false;
 }
+
+function weaponGetNameFromId(id) {
+    for (var i = 0; i < weaponDatabase.length; i++) {
+        if (weaponDatabase[i].id == id) {
+            return [weaponDatabase[i].name, weaponDatabase[i].charName];
+        }
+    }
+    return ['',''];
+}
+
 function gearIsFoundInGearList(name) {
     for (var i = 0; i < gearList.length; i++) {
-        if (getValueFromDatabaseItem(gearList[i], "name") == name) {
+        if (gearList[i].name == name) {
             return true;
         }
     }
@@ -1261,12 +1308,11 @@ function replaceHeaderWithWeaponName(cell) {
 function printArray(array, charName) {
     for (var i = 0; i < array.length; i++) {
         //console.log(array[i]);
-        if (getValueFromDatabaseItem(array[i], "charName") == charName) {
+        if (array[i].charName == charName) {
             console.log(array[i]);
         }
     }
 }
-
 
 // Process the file the user entered and fill the userWeapList
 function processUserData(text) {
@@ -1286,35 +1332,114 @@ function processUserData(text) {
         var row = CSVToArray(lines[line], ',');
         var i = 0;
         let weapData = [];
-        weapData.push({ name: 'name', value: row[i][0] });
-        weapData.push({ name: 'charName', value: row[i][1] });
-        weapData.push({ name: 'level', value: row[i][2] });
-        weapData.push({ name: 'ob', value: row[i][3] });
-        weapData.push({ name: 'extraOb', value: row[i][4] });
-        weapData.push({ name: 'avail', value: row[i][5] }); // avail to sim
+        weapData.name = row[i][0];
+        weapData.charName = row[i][1];
+        weapData.level = parseInt(row[i][2]);
+        weapData.ob = parseInt(row[i][3]);
+        weapData.extraOb = row[i][4];   // not used
+        weapData.avail = row[i][5]; // avail to sim
+        weapData.id = 0; // weaponId
 
         userWeapList.push(weapData);
     }
 
+    resetFunc();
+
     //    printArray(userWeapList);
 }
 
+// Process user data in JSON format
+function processUserJsonData(text) {
+    var data = JSON.parse(text)
+
+    if (data.hasOwnProperty('userWeaponList')) {
+        userWeapList = [];
+
+        for (var i = 0; i < data.userWeaponList.length; i++) {
+            var weapon = data.userWeaponList[i];
+            var level;
+            var ob;
+            let weapData = [];
+
+            // 400k is 120, 312k is 110, 160k is 90, 104k is 80
+            if (weapon.exp > 312000) {
+                level = 120;
+            }
+            else if (weapon.exp > 160000) {
+                level = 110;
+            }
+            else if (weapon.exp > 104000) {
+                level = 90;
+            }
+            else {  // level could be less, but if it's under 80, they can get to 80
+                level = 80;
+            }
+
+            if (weapon.weaponUpgradeType > 1) {
+                ob = 10;
+            }
+            else {
+                ob = weapon.upgradeCount;
+            }
+            weapData.name = '';
+            weapData.charName = '';
+            weapData.level = level;
+            weapData.ob = ob;
+            weapData.extraOb = 0;
+            weapData.avail = 'Y';
+            weapData.id = weapon.weaponId;
+            userWeapList.push(weapData);
+        }
+
+        for (var i = 0; i < userWeapList.length; i++) {
+            [userWeapList[i].name, userWeapList[i].charName] = weaponGetNameFromId(userWeapList[i].id);
+            /*        const values = weaponGetNameFromId(userWeapList[i].id);
+                    userWeapList[i].name = values[0];
+                    userWeapList[i].charName = values[1];*/
+        }
+
+        //console.log(weaponDatabase);
+
+        resetFunc();
+    }
+    else {
+        alert("Wrong format for JSON file. Please enter a correct file.");
+    }
+
+//    console.log(userWeapList);
+}
+function fetchJSONData(filename) {
+    fetch(filename)
+        .then((res) => {
+            if (!res.ok) {
+                throw new Error
+                    (`HTTP error! Status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then((data) => {
+            console.log(data)
+        })
+        .catch((error) =>
+            console.error("Unable to fetch data:", error));
+}
 function populateUserWeapListUsingDatabase() {
     for (var i = 0; i < weaponDatabase.length; i++) {
         let weapData = [];
-        weapData.push({ name: 'name', value: getValueFromDatabaseItem(weaponDatabase[i], "name") });
-        weapData.push({ name: 'charName', value: getValueFromDatabaseItem(weaponDatabase[i], "charName") });
-        weapData.push({ name: 'level', value: '110' });
+        weapData.name = weaponDatabase[i].name;
+        weapData.charName = weaponDatabase[i].charName;
+        weapData.level = 110; // @Todo. should be user option
 
-        if (getValueFromDatabaseItem(weaponDatabase[i], "isUl") == "Y") {
-            weapData.push({ name: 'ob', value: '0' }); // UL doesn't OB
+        if (weaponDatabase[i].isUl == "Y") {
+            weapData.ob = 0; // UL doesn't OB
         }
         else {
-            weapData.push({ name: 'ob', value: '10' });
+            weapData.ob = 10;
         }
 
-        weapData.push({ name: 'extraOb', value: '' });
-        weapData.push({ name: 'avail', value: '' }); // avail to sim
+        weapData.extraOb = 0;
+        weapData.avail = 'Y'; // avail to sim
+        weapData.id = weaponDatabase.id;
 
         userWeapList.push(weapData);
     }
@@ -1338,16 +1463,16 @@ function readGearDatabase() {
             var row = CSVToArray(lines[line], ',');
             var i = 0;
             let data = [];
-            data.push({ name: 'name', value: row[i][0] });
-            data.push({ name: 'charName', value: row[i][1] });
-            data.push({ name: 'r1', value: row[i][2] });
-            data.push({ name: 'r1value', value: row[i][3] });
-            data.push({ name: 'r2', value: row[i][4] });
-            data.push({ name: 'r2value', value: row[i][5] });
-            data.push({ name: 'r3', value: row[i][6] });
-            data.push({ name: 'r3value', value: row[i][7] });
-            data.push({ name: 'r4', value: row[i][8] });
-            data.push({ name: 'r4value', value: row[i][9] });
+            data.name = row[i][0];
+            data.charName = row[i][1];
+            data.r1 = parseInt(row[i][2]);
+            data.r1value = parseInt(row[i][3]);
+            data.r2 = parseInt(row[i][4]);
+            data.r2value = parseInt(row[i][5]);
+            data.r3 = parseInt(row[i][6]);
+            data.r3value = parseInt(row[i][7]);
+            data.r4 = parseInt(row[i][8]);
+            data.r4value = parseInt(row[i][9]);
             gearList.push(data);
         }
     }
@@ -1372,13 +1497,13 @@ function readCharDatabase() {
             var row = CSVToArray(lines[line], ',');
             var i = 0;
             let data = [];
-            data.push({ name: 'name', value: row[i][0] });
-            data.push({ name: 'hp', value: row[i][1] });
-            data.push({ name: 'patk', value: row[i][2] });
-            data.push({ name: 'matk', value: row[i][3] });
-            data.push({ name: 'pdef', value: row[i][4] });   
-            data.push({ name: 'mdef', value: row[i][5] });
-            data.push({ name: 'heal', value: row[i][6] });
+            data.name = row[i][0];
+            data.hp = parseInt(row[i][1]);
+            data.patk = parseInt(row[i][2]);
+            data.matk = parseInt(row[i][3]);
+            data.pdef = parseInt(row[i][4]);   
+            data.mdef = parseInt(row[i][5]);
+            data.heal = parseInt(row[i][6]);
             charNameList.push(data);
         }
     }
@@ -1401,53 +1526,61 @@ function readWeaponDatabase() {
         for (var line = FILE_NUM_SKIP_LINE; line < lines.length - 1; line++) {
 
             var row = CSVToArray(lines[line], ',');
-            var i = 0;
+            var i = 0, m = 0;
             let weapData = [];
-            weapData.push({ name: 'name', value: row[i][0] });
-            weapData.push({ name: 'charName', value: row[i][1] });
-            weapData.push({ name: 'sigil', value: row[i][2] });
-            weapData.push({ name: 'atb', value: row[i][3] });
-            weapData.push({ name: 'type', value: row[i][4] });    // dmg type
-            weapData.push({ name: 'element', value: row[i][5] });
-            weapData.push({ name: 'range', value: row[i][6] });
-            weapData.push({ name: 'effect1Target', value: row[i][7] });
-            weapData.push({ name: 'effect1', value: row[i][8] });
-            weapData.push({ name: 'effect1Pot', value: row[i][9] });
-            weapData.push({ name: 'effect1MaxPot', value: row[i][10] });
-            weapData.push({ name: 'effect2Target', value: row[i][11] });
-            weapData.push({ name: 'effect2', value: row[i][12] });
-            weapData.push({ name: 'effect2Pot', value: row[i][13] });
-            weapData.push({ name: 'effect2MaxPot', value: row[i][14] });
-            weapData.push({ name: 'support1', value: row[i][15] });
-            weapData.push({ name: 'support2', value: row[i][16] });
-            weapData.push({ name: 'support3', value: row[i][17] });
-            weapData.push({ name: 'rAbility1', value: row[i][18] });
-            weapData.push({ name: 'rAbility2', value: row[i][19] });
-            weapData.push({ name: 'potOb10', value: row[i][20] });
-            weapData.push({ name: 'maxPotOb10', value: row[i][21] });
-            weapData.push({ name: 'effect1Dur', value: row[i][22] });
-            weapData.push({ name: 'effect2Dur', value: row[i][23] });
-            weapData.push({ name: 'condition1', value: row[i][24] });
-            weapData.push({ name: 'condition2', value: row[i][25] });
-            weapData.push({ name: 'potOb0', value: row[i][26] });
-            weapData.push({ name: 'potOb1', value: row[i][27] });
-            weapData.push({ name: 'potOb6', value: row[i][28] });
-            weapData.push({ name: 'patkLvl1', value: row[i][29] });
-            weapData.push({ name: 'patk', value: row[i][30] });
-            weapData.push({ name: 'matkLvl1', value: row[i][31] });
-            weapData.push({ name: 'matk', value: row[i][32] });
-            weapData.push({ name: 'healLvl1', value: row[i][33] });
-            weapData.push({ name: 'heal', value: row[i][34] });
-            weapData.push({ name: 'rAbiilty1PtScale', value: row[i][35] });
-            weapData.push({ name: 'rAbiilty2PtScale', value: row[i][36] });
-            weapData.push({ name: 'r1', value: row[i][37] });
-            weapData.push({ name: 'r2', value: row[i][38] });
-            weapData.push({ name: 'isUl', value: row[i][39] });
-            weapData.push({ name: 'effect1Range', value: row[i][40] });
-            weapData.push({ name: 'uses', value: row[i][41] });
-//            console.log(weapData);
+            weapData.name = row[i][m]; m++;
+            weapData.charName = row[i][m]; m++;
+            weapData.sigil = row[i][m]; m++;
+            weapData.atb = parseInt(row[i][m]); m++;
+            weapData.type = row[i][m]; m++;
+            weapData.element = row[i][m]; m++;
+            weapData.range = row[i][m]; m++;
+            weapData.effect1Target = row[i][m]; m++;
+            weapData.effect1 = row[i][m]; m++;
+            weapData.effect1Pot = row[i][m]; m++;
+            weapData.effect1MaxPot = row[i][m]; m++;
+            weapData.effect2Target = row[i][m]; m++;
+            weapData.effect2 = row[i][m]; m++;
+            weapData.effect2Pot = row[i][m]; m++;
+            weapData.effect2MaxPot = row[i][m]; m++;
+            weapData.effect3Target = row[i][m]; m++;
+            weapData.effect3 = row[i][m]; m++;
+            weapData.effect3Pot = row[i][m]; m++;
+            weapData.effect3MaxPot = row[i][m]; m++;
+            weapData.support1 = row[i][m]; m++;
+            weapData.support2 = row[i][m]; m++;
+            weapData.support3 = row[i][m]; m++;
+            weapData.rAbility1 = row[i][m]; m++;
+            weapData.rAbility2 = row[i][m]; m++;
+            weapData.potOb10 = parseInt(row[i][m]); m++;
+            weapData.maxPotOb10 = parseInt(row[i][m]); m++;
+            weapData.effect1Dur = row[i][m]; m++;
+            weapData.effect2Dur = row[i][m]; m++;
+            weapData.effect3Dur = row[i][m]; m++;
+            weapData.condition1 = row[i][m]; m++;
+            weapData.condition2 = row[i][m]; m++;
+            weapData.condition3 = row[i][m]; m++;
+            weapData.potOb0 = parseInt(row[i][m]); m++;
+            weapData.potOb1 = parseInt(row[i][m]); m++;
+            weapData.potOb6 = parseInt(row[i][m]); m++;
+            weapData.patkLvl1 = parseInt(row[i][m]); m++;
+            weapData.patk = parseInt(row[i][m]); m++;
+            weapData.matkLvl1 = parseInt(row[i][m]); m++;
+            weapData.matk = parseInt(row[i][m]); m++;
+            weapData.healLvl1 = parseInt(row[i][m]); m++;
+            weapData.heal = parseInt(row[i][m]); m++;
+            weapData.rAbiilty1PtScale = parseInt(row[i][m]); m++;
+            weapData.rAbiilty2PtScale = parseInt(row[i][m]); m++;
+            weapData.r1 = parseInt(row[i][m]); m++;
+            weapData.r2 = parseInt(row[i][m]); m++;
+            weapData.isUl = row[i][m]; m++;
+            weapData.effect1Range = row[i][m]; m++;
+            weapData.uses = parseInt(row[i][m]); m++;
+            weapData.id = parseInt(row[i][m]); m++;
 
             weaponDatabase.push(weapData);
         }
+
+//        console.log(weaponDatabase);
     }
 }
