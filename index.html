@@ -8,6 +8,7 @@
 	<link rel="shortcut icon" href="#">
 	<title>FF7 Ever Crisis Simulation</title>
 </head>
+<body>
 <h1 class="w3-margin w3-center">FF7EC Weapon Optimizer</h1>
 
 <div class="w3-margin">
@@ -72,18 +73,29 @@ weapons are OB10 and level 110.</b>
 
 <div class="charInfo w3-margin">
 	<div class="w3-dropdown-hover w3-margin">
-	  <button class="w3-button w3-teal" onmouseover="fillCharacter()" id="characterButton">Character</button>
-	  <div class="w3-dropdown-content w3-bar-block w3-border" id="charDiv">
-		<input class="w3-input w3-padding" type="text" placeholder="Search character.." id="userFilterChar" onkeyup="filterFunctionChar()">	  		
-	  </div>
-	</div>	
-	
+		<button class="w3-button w3-teal" onmouseover="fillCharacter()" id="characterButton">Character</button>
+		<div class="w3-dropdown-content w3-bar-block w3-border" id="charDiv">
+			<input class="w3-input w3-padding" type="text" placeholder="Search character.." id="userFilterChar" onkeyup="filterFunctionChar()">
+		</div>
+	</div>
+
 	<div class="w3-dropdown-hover w3-margin">
-	  <button class="w3-button w3-teal " onmouseover="fillGear()" id="gearButton">Gear</button>
-	  <div class="w3-dropdown-content w3-bar-block w3-border" id="gearDiv">
-		<input class="w3-input w3-padding" type="text" placeholder="Search gear.." id="userFilterGear" onkeyup="filterFunctionGear()">	  		
-	  </div>
-	</div>		
+		<button class="w3-button w3-teal" onmouseover="fillGear()" id="gearButton">Gear</button>
+		<div class="w3-dropdown-content w3-bar-block w3-border" id="gearDiv">
+			<input class="w3-input w3-padding" type="text" placeholder="Search gear.." id="userFilterGear" onkeyup="filterFunctionGear()">
+		</div>
+	</div>
+
+	<div class="w3-dropdown-hover w3-margin">
+		<button class="w3-button w3-teal" id="lvlChoice">Overwrite Level Option</button>
+		<div class="w3-dropdown-content w3-bar-block w3-border">
+			<a class="w3-bar-item w3-button" id="choice4" onclick="sLvlDefault()">Default from file. If no new file, whatever last selected.</a>
+			<a class="w3-bar-item w3-button" id="choice1" onclick="sLvlMh120()">Main Hand 120, Everything else 110</a>
+			<a class="w3-bar-item w3-button" id="choice2" onclick="sLvlMhOh120()">Main and Off Hand 120, Everything else 110</a>
+			<a class="w3-bar-item w3-button" id="choice0" onclick="sLvl110()">All weapons level 110</a>
+			<a class="w3-bar-item w3-button" id="choice3" onclick="sLvl120()">All weapons level 120</a>
+		</div>
+	</div>
 </div>
 
 <div class="w3-third w3-container" style="min-height:500px">
@@ -167,7 +179,7 @@ weapons are OB10 and level 110.</b>
 <footer>
   <div class="footer-copyright">
 	<div class="container w3-margin">
-	For bugs/feedbacks, contact Cantiga (OnlyMatt) on official/unofficial FF7EC discord &#169; 2024
+	For bugs/feedbacks, contact Cantiga Discord &#169; 2024-2025
 	</div>
   </div>
 </footer>

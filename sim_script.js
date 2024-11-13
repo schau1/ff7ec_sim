@@ -8,6 +8,12 @@ const WEAP_FILE_NAME = 'weaponData.csv'
 const CHAR_FILE_NAME = 'characters.csv'
 const GEAR_FILE_NAME = 'gearData.csv'
 
+const SLVL_DEFAULT = 0
+const SLVL_110 = 4
+const SLVL_MH_OF_120 = 1
+const SLVL_120 = 2
+const SLVL_MH_120 = 3
+
 // don't need this but I just want to make sure my calc is right by checking with game
 /*const MY_HW_MATK = 0.159;   //15.4%
 const MY_HW_PATK = 0.178;
@@ -34,6 +40,7 @@ var lastBreak = Date.now();
 var stopRunning = true;
 var databaseLoaded = false; // set to true once userWeapList has calculated value for OBs and Rs
 var lastBarUpdate = Date.now();
+var lvlOp = SLVL_DEFAULT;
 
 readCharDatabase();
 readWeaponDatabase();
@@ -878,7 +885,6 @@ function charSetStatsFromDatabase(simChar) {
 }
 
 function gearAddRFromGearToCharR(char) {
-
     gearList.forEach(function (gear) {
         if (gear.name == char.gear) {
 
@@ -970,7 +976,10 @@ function validateInput() {
     if (!gearIsFoundInGearList(gear)) {
         gear = "";
     }
-    
+
+    updateUserWeapListLevel(mainHand, offHand);
+
+
     // For testing
 /*    mainHand = "Orthodox Raven";
     offHand = "Absolute Royal"
@@ -1024,7 +1033,6 @@ function resetFunc() {
     resetWeaponSelection();
 
     databaseLoaded = false;
-
     stopRunning = true;
 }
 
@@ -1297,6 +1305,46 @@ function removeItemFromBlackList(cell) {
     weaponSearchAndMarkAvailable(cell.innerHTML.replaceAll("&amp;", "&"), "Y");
 }
 
+function sLvlDefault(){
+    lvlOp = SLVL_DEFAULT;
+    databaseLoaded = false;
+
+    var el = document.getElementById("lvlChoice");
+    el.innerHTML = document.getElementById("choice4").innerHTML;
+}
+
+function sLvl110() {
+    lvlOp = SLVL_110;
+    databaseLoaded = false;
+
+    var el = document.getElementById("lvlChoice");
+    el.innerHTML = document.getElementById("choice0").innerHTML;
+}
+
+function sLvlMh120() {
+    lvlOp = SLVL_MH_120;
+    databaseLoaded = false;
+
+    var el = document.getElementById("lvlChoice");
+    el.innerHTML = document.getElementById("choice1").innerHTML;
+}
+
+function sLvlMhOh120() {
+    lvlOp = SLVL_MH_OF_120;
+    databaseLoaded = false;
+
+    var el = document.getElementById("lvlChoice");
+    el.innerHTML = document.getElementById("choice2").innerHTML;
+}
+
+function sLvl120() {
+    lvlOp = SLVL_120;
+    databaseLoaded = false;
+
+    var el = document.getElementById("lvlChoice");
+    el.innerHTML = document.getElementById("choice3").innerHTML;
+}
+
 function replaceHeaderWithWeaponName(cell) {
     var divParent = cell.parentNode.parentNode;
 
@@ -1423,12 +1471,39 @@ function fetchJSONData(filename) {
         .catch((error) =>
             console.error("Unable to fetch data:", error));
 }
+
+function updateUserWeapListLevel(mh, oh) {
+    if (lvlOp == SLVL_DEFAULT) {
+        return;
+    }
+
+    for (var i = 0; i < userWeapList.length; i++) {
+        if (lvlOp == SLVL_120) {
+            userWeapList[i].level = 120;
+        }
+        else {
+            if (lvlOp == SLVL_MH_120 && userWeapList[i].name == mh) {
+                userWeapList[i].level = 120;
+            }
+            else if (lvlOp == SLVL_MH_OF_120 && userWeapList[i].name == mh) {
+                userWeapList[i].level = 120;
+            }
+            else if (lvlOp == SLVL_MH_OF_120 && userWeapList[i].name == oh) {
+                userWeapList[i].level = 120;
+            }
+            else {
+                userWeapList[i].level = 110;
+            }        
+        }
+    }
+}
+
 function populateUserWeapListUsingDatabase() {
     for (var i = 0; i < weaponDatabase.length; i++) {
         let weapData = [];
         weapData.name = weaponDatabase[i].name;
         weapData.charName = weaponDatabase[i].charName;
-        weapData.level = 110; // @Todo. should be user option
+        weapData.level = 110;
 
         if (weaponDatabase[i].isUl == "Y") {
             weapData.ob = 0; // UL doesn't OB
