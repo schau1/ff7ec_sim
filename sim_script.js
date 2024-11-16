@@ -549,15 +549,30 @@ function outputResult(damage, character) {
     ul.appendChild(item);
 
     item = document.createElement("li");
-    item.innerHTML = "  Subweapon: " + character.sub1 + "     OB" + character.sub1ob + " Level " + character.sub1lvl;
+    if (character.sub1ob != 0) {
+        item.innerHTML = "  Subweapon: " + character.sub1 + "     OB" + character.sub1ob + " Level " + character.sub1lvl;
+    }
+    else {
+        item.innerHTML = "  Subweapon: " + character.sub1;
+    }
     ul.appendChild(item);
 
     item = document.createElement("li");
-    item.innerHTML = "  Subweapon: " + character.sub2 + "     OB" + character.sub2ob + " Level " + character.sub2lvl;
+    if (character.sub2ob != 0) {
+        item.innerHTML = "  Subweapon: " + character.sub2 + "     OB" + character.sub2ob + " Level " + character.sub2lvl;
+    }
+    else {
+        item.innerHTML = "  Subweapon: " + character.sub2;
+    }
     ul.appendChild(item);
 
     item = document.createElement("li");
-    item.innerHTML = "  Subweapon: " + character.sub3 + "     OB" + character.sub3ob + " Level " + character.sub3lvl;
+    if (character.sub3ob != 0) {
+        item.innerHTML = "  Subweapon: " + character.sub3 + "     OB" + character.sub3ob + " Level " + character.sub3lvl;
+    }
+    else {
+        item.innerHTML = "  Subweapon: " + character.sub3;
+    }
     ul.appendChild(item);
 
     element.appendChild(ul);
