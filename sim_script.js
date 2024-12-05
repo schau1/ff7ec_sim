@@ -597,7 +597,7 @@ function outputResult(damage, character) {
 
     if (character.boostPatk > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost PATK: " + character.boostPatk + " (" + calculateBoostPatkPercent(character.boostPatk) + ")";
+        item.innerHTML = "  Boost PATK: " + character.boostPatk + " (" + calculateBoostPatkPercentStr(character.boostPatk) + ")";
         ul.appendChild(item);
     }
 
@@ -653,7 +653,7 @@ function outputResult(damage, character) {
     }
     if (character.boostFirePotPercent > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost Fire Pot. (%): " + character.boostFirePotPercent * 100 + "%";
+        item.innerHTML = "  Boost Fire Pot. (gear %): " + character.boostFirePotPercent * 100 + "%";
         ul.appendChild(item);
     }
     if (character.boostIcePot > 0) {
@@ -663,7 +663,7 @@ function outputResult(damage, character) {
     }
     if (character.boostIcePotPercent > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost Ice Pot. (%): " + character.boostIcePotPercent * 100 + "%";
+        item.innerHTML = "  Boost Ice Pot. (gear %): " + character.boostIcePotPercent * 100 + "%";
         ul.appendChild(item);
     }
     if (character.boostThunderPot > 0) {
@@ -673,7 +673,7 @@ function outputResult(damage, character) {
     }
     if (character.boostThunderPotPercent > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost Lightning Pot.(%): " + character.boostThunderPotPercent * 100 + "%";
+        item.innerHTML = "  Boost Lightning Pot.(gear %): " + character.boostThunderPotPercent * 100 + "%";
         ul.appendChild(item);
     }
     if (character.boostWaterPot > 0) {
@@ -683,7 +683,7 @@ function outputResult(damage, character) {
     }
     if (character.boostWaterPotPercent > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost Water Pot. (%): " + character.boostWaterPotPercent * 100 + "%";
+        item.innerHTML = "  Boost Water Pot. (gear %): " + character.boostWaterPotPercent * 100 + "%";
         ul.appendChild(item);
     }
     if (character.boostWindPot > 0) {
@@ -693,7 +693,7 @@ function outputResult(damage, character) {
     }
     if (character.boostWindPotPercent > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost Wind Pot. (%): " + character.boostWindPotPercent * 100 + "%";
+        item.innerHTML = "  Boost Wind Pot. (gear %): " + character.boostWindPotPercent * 100 + "%";
         ul.appendChild(item);
     }
     if (character.boostEarthPot > 0) {
@@ -703,7 +703,7 @@ function outputResult(damage, character) {
     }
     if (character.boostEarthPotPercent > 0) {
         item = document.createElement("li");
-        item.innerHTML = "  Boost Earth Pot. (%): " + character.boostEarthPotPercent * 100 + "%";
+        item.innerHTML = "  Boost Earth Pot. (gear %): " + character.boostEarthPotPercent * 100 + "%";
         ul.appendChild(item);
     }
     if (character.boostPability > 0) {
