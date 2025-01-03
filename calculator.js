@@ -1001,7 +1001,35 @@ function calculateBoostPatkPercentStr(value) {
 
     return "Level 0";
 }
-
+function calculateBoostAtkAllPercentStr(value) {
+    if (value < 1) {
+        return "Level 0";
+    }
+    else if (value < 5) {
+        return "Level 1";
+    }
+    else if (value >= 5 && value < 15) {
+        return "Level 2";
+    }
+        else if (value >= 15 && value < 25) {
+        return "Level 3";
+    }
+    else if (value >= 25 && value < 35) {
+        return "Level 4";
+    }
+    else if (value >= 35 && value < 45) {
+        return "Level 5";
+    }
+    else if (value >= 45 && value < 55) {
+        return "Level 6";
+    }
+    else if (value >= 55) {
+        return "Level 7";
+    }
+    else {
+        return "Level 0";
+    }
+}
 function calculateBoostMatkPercent(value) {
     return calculateBoostPatkPercent(value);
 }
@@ -1104,7 +1132,7 @@ function calculateBoostAtkAllPercent(value) {
     else if (value >= 5 && value < 15) {
         return 0.05;
     }
-/*    else if (value >= 15 && value < 25) {
+    else if (value >= 15 && value < 25) {
         return 0.07;
     }
     else if (value >= 25 && value < 35) {
@@ -1114,12 +1142,16 @@ function calculateBoostAtkAllPercent(value) {
         return 0.11;
     }
     else if (value >= 45 && value < 55) {
-        return 0.25;
-    }*/
+        return 0.13;
+    }
+    else if (value >= 55) {
+        return 0.14;
+    }
     else {
-        return 0.05;
+        return 0;
     }
 }
+
 function calcExtraAtkFromAtkAll(percent) {
     if (percent < 0.03) {
         return 0;
@@ -1127,8 +1159,17 @@ function calcExtraAtkFromAtkAll(percent) {
     else if (percent >= 0.03 && percent < 0.05) {
         return 5;
     }
-    else {
+    else if (percent >= 0.05 && percent < 0.07) {
         return 10;
+    }
+    else if (percent >= 0.07 && percent < 0.09) {
+        return 20;
+    }
+    else if (percent >= 0.09 && percent < 0.11) {
+        return 30;
+    }
+    else {
+        return 30;
     }
 }
 

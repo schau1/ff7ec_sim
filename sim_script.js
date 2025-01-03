@@ -503,6 +503,10 @@ function outputResult(damage, character) {
     item.innerHTML = "Damage is: ~" + damage;
     element.appendChild(item);
 
+    var item = document.createElement("p");
+    item.innerHTML = "Elemental Weakness Damage is: ~" + damage*2;
+    element.appendChild(item);
+
     item = document.createElement("p");
     item.innerHTML = "Name: " + character.name;
     element.appendChild(item);
@@ -766,6 +770,11 @@ function outputResult(damage, character) {
         item.innerHTML = "  Boost MATK (All): " + character.boostMatkAll + " (" + calculateBoostPatkAllPercentStr(character.boostMatkAll) + ")";;
         ul.appendChild(item);
     }
+    if (character.boostAtkAll > 0) {
+        item = document.createElement("li");
+        item.innerHTML = "  Boost ATK (All): " + character.boostAtkAll + " (" + calculateBoostAtkAllPercentStr(character.boostAtkAll) + ")";;
+        ul.appendChild(item);
+    }
 
     element.appendChild(ul);
 
@@ -903,12 +912,12 @@ function gearAddRFromGearToCharR(char) {
     gearList.forEach(function (gear) {
         if (gear.name == char.gear) {
 
-            var rValue = gear.r1value;
+            var rValue = parseInt(gear.r1value);
             if (rValue > 0) {
                 AddRFromGearToCharR(char, gear.r1, rValue, true);
             }
 
-            rValue = gear.r2value;
+            rValue = parseInt(gear.r2value);
             if (rValue > 0) {
                 AddRFromGearToCharR(char, gear.r2, rValue, true);
             }
@@ -922,6 +931,27 @@ function gearAddRFromGearToCharR(char) {
             if (rValue > 0) {
                 AddRFromGearToCharR(char, gear.r4, rValue, true);
             }
+
+            rValue = parseInt(gear.r5value);
+            if (rValue > 0) {
+                AddRFromGearToCharR(char, gear.r5, rValue, true);
+            }
+
+            rValue = parseInt(gear.r6value);
+            if (rValue > 0) {
+                AddRFromGearToCharR(char, gear.r6, rValue, true);
+            }
+
+            rValue = parseInt(gear.r7value);
+            if (rValue > 0) {
+                AddRFromGearToCharR(char, gear.r7, rValue, true);
+            }
+
+            rValue = parseInt(gear.r8value);
+            if (rValue > 0) {
+                AddRFromGearToCharR(char, gear.r8, rValue, true);
+            }
+
             return;
         }
     });
@@ -1563,6 +1593,14 @@ function readGearDatabase() {
             data.r3value = parseInt(row[i][7]);
             data.r4 = parseInt(row[i][8]);
             data.r4value = parseInt(row[i][9]);
+            data.r5 = parseInt(row[i][10]);
+            data.r5value = parseInt(row[i][11]);
+            data.r6 = parseInt(row[i][12]);
+            data.r6value = parseInt(row[i][13]);
+            data.r7 = parseInt(row[i][14]);
+            data.r7value = parseInt(row[i][15]);
+            data.r8 = parseInt(row[i][16]);
+            data.r8value = parseInt(row[i][17]);
             gearList.push(data);
         }
     }
