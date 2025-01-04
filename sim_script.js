@@ -68,6 +68,11 @@ function fillMainHand() {
     }
 
     outputCharWeapon(dropdown, userWeapList, charName);
+
+    const targetElement = dropdown;
+    var x = targetElement.parentNode.firstElementChild.nextElementSibling;
+
+    x.className = x.className.replace(" w3-hide", "");
 }
 
 function fillOffHand() {
@@ -89,6 +94,11 @@ function fillOffHand() {
     }
 
     outputCharWeapon(dropdown, userWeapList, charName);
+
+    const targetElement = dropdown;
+    var x = targetElement.parentNode.firstElementChild.nextElementSibling;
+
+    x.className = x.className.replace(" w3-hide", "");
 }
 
 function fillUltimate() {
@@ -124,6 +134,11 @@ function fillUltimate() {
     }
 
     outputCharWeapon(dropdown, userWeapList, charName, true);
+
+    const targetElement = dropdown;
+    var x = targetElement.parentNode.firstElementChild.nextElementSibling;
+
+    x.className = x.className.replace(" w3-hide", "");
 }
 
 function fillCharacter() {
@@ -141,6 +156,11 @@ function fillCharacter() {
     readCharDatabase();
 
     outputCharName(dropdown, charNameList);
+
+    const targetElement = dropdown;
+    var x = targetElement.parentNode.firstElementChild.nextElementSibling;
+
+    x.className = x.className.replace(" w3-hide", "");
 }
 
 function fillGear() {
@@ -160,6 +180,11 @@ function fillGear() {
     }
 
     outputCharGear(dropdown, gearList);
+
+    const targetElement = dropdown;
+    var x = targetElement.parentNode.firstElementChild.nextElementSibling;
+
+    x.className = x.className.replace(" w3-hide", "");
 }
 function fillSubweapon(elementId) {
     if (!stopRunning) {
@@ -194,6 +219,11 @@ function fillSubweapon(elementId) {
     }
 
     outputAllCharWeapon(dropdown, userWeapList);
+
+    const targetElement = dropdown;
+    var x = targetElement.parentNode.firstElementChild.nextElementSibling;
+
+    x.className = x.className.replace(" w3-hide", "");
 }
 
 function fillSubweapon1() {
@@ -236,6 +266,11 @@ function fillBlklist() {
     }
 
     outputBlacklistWeaponList(dropdown, userWeapList);
+
+    const targetElement = dropdown;
+    var x = targetElement.parentNode.firstElementChild.nextElementSibling;
+
+    x.className = x.className.replace(" w3-hide", "");
 }
 
 function runSimMh() {
@@ -273,7 +308,7 @@ function runSim(simMH) {
         simBestSub(simChar, simMH).then((res) => {
             damage = FillSubWeaponAndCalcDamage(simChar, simMH);
 
-            outputResult(damage, simChar);
+            outputResult(damage, simChar, simMH);
 
             const ms = Date.now() - start;
 
@@ -490,7 +525,7 @@ function FillSubWeaponAndCalcDamage(character, simMH) {
 }
 
 /* ------------- Sim functions end -------------------*/
-function outputResult(damage, character) {
+function outputResult(damage, character, simMH) {
     var element = document.getElementById("progressBar");
     element.style.width = "100%";
     element.innerHTML = "100%";
@@ -503,9 +538,20 @@ function outputResult(damage, character) {
     item.innerHTML = "Damage is: ~" + damage;
     element.appendChild(item);
 
-    var item = document.createElement("p");
-    item.innerHTML = "Elemental Weakness Damage is: ~" + damage*2;
-    element.appendChild(item);
+    if (simMH) {
+        if (character.mhElem != "Heal" && character.mhElem != "None") {
+            var item = document.createElement("p");
+            item.innerHTML = "Damage on enemy weak to " + character.mhElem + " is: ~" + damage * 2;
+            element.appendChild(item);
+        }
+    }
+    else {
+        if (character.ohElem != "Heal" && character.ohElem != "None") {
+            var item = document.createElement("p");
+            item.innerHTML = "Damage on enemy weak to " + character.ohElem + " is: ~" + damage * 2;
+            element.appendChild(item);
+        }
+    }
 
     item = document.createElement("p");
     item.innerHTML = "Name: " + character.name;
@@ -1302,12 +1348,23 @@ function replaceHeaderWithCharName(cell) {
     charName = cell.innerHTML;
     divParent.children[0].innerHTML = cell.innerHTML;
 
+    var x = cell.parentNode;
+
+    if (x.className.indexOf("w3-hide") == -1) {
+        x.className += " w3-hide";
+    }
 }
 function replaceHeaderWithGearName(cell) {
     var divParent = cell.parentNode.parentNode;
 
     gear = cell.innerHTML;
     divParent.children[0].innerHTML = cell.innerHTML;
+
+    var x = cell.parentNode;
+
+    if (x.className.indexOf("w3-hide") == -1) {
+        x.className += " w3-hide";
+    }
 }
 
 function addItemToBlackList(cell){
@@ -1397,6 +1454,12 @@ function replaceHeaderWithWeaponName(cell) {
     weaponSearchAndMarkAvailable(cell.innerHTML, "N");
 
     divParent.children[0].innerHTML = cell.innerHTML;
+
+    var x = cell.parentNode;
+
+    if (x.className.indexOf("w3-hide") == -1) {
+        x.className += " w3-hide";
+    }
 }
 function printArray(array, charName) {
     for (var i = 0; i < array.length; i++) {
