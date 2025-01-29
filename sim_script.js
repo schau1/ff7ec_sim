@@ -15,18 +15,11 @@ const SLVL_120 = 2
 const SLVL_MH_120 = 3
 
 // don't need this but I just want to make sure my calc is right by checking with game
-/*const MY_HW_MATK = 0.159;   //15.4%
-const MY_HW_PATK = 0.178;
-const MY_HW_HP = 0.113;
-const MY_HW_HEAL = 0.051;
-const MY_HW_WEP = 0.275
-*/
-
-const MY_HW_MATK = 0;
+/*const MY_HW_MATK = 0;
 const MY_HW_PATK = 0;
 const MY_HW_HP = 0;
 const MY_HW_HEAL = 0;
-const MY_HW_WEP = 0;
+const MY_HW_WEP = 0;*/
 
 const FILE_NUM_SKIP_LINE = 1;
 let userWeapList = [];
@@ -41,6 +34,9 @@ var stopRunning = true;
 var databaseLoaded = false; // set to true once userWeapList has calculated value for OBs and Rs
 var lastBarUpdate = Date.now();
 var lvlOp = SLVL_DEFAULT;
+var hw_patk = 0, hw_matk = 0, hw_heal = 0, hw_hp = 0, hw_wep = 0;
+var pAllPercentOther = 0, mAllPercentOther = 0, aAllPercentOther = 0; // PATK/MATK/ATK ALL from other characters
+var patkMateria = 0, matkMateria = 0;
 
 readCharDatabase();
 readWeaponDatabase();
@@ -258,12 +254,22 @@ function fillBlklist() {
 
     dropdown.appendChild(item);
 
-
     // if there is a userlist, we use the userlist. If not we use the main database
     if (userWeapList.length == 0) {
         readWeaponDatabase();
         populateUserWeapListUsingDatabase();
     }
+
+/*  too hard. just add a button avoid simming event
+item = document.createElement("a");
+    item.setAttribute('class', 'w3-bar-item w3-button');
+    item.innerHTML = "All Event Weapons";
+    item.onclick = function () {
+        // Mark event weapons as not available to avoid running sim on these
+        markAllEventWeaponsAvailable("N");
+    };
+
+    dropdown.appendChild(item);*/
 
     outputBlacklistWeaponList(dropdown, userWeapList);
 
@@ -490,7 +496,12 @@ async function simBestSub(character, mainHand) {
 function FillSubWeaponAndCalcDamage(character, simMH) {
     // Finish filling all the character weapons and stats from user.
     weapAddWeaponStatstoCharStat(character);
-    calcTotalStatFromCharR(character);
+
+/*    // Testing - added brand
+    character.patk = 2919;
+    character.matk = 2371;*/
+
+    calcTotalStatFromCharR(character, hw_patk, hw_matk, hw_heal, hw_hp, pAllPercentOther, mAllPercentOther, aAllPercentOther, patkMateria, matkMateria);
 
     var type, pot, element;
     var damage = 0;
@@ -515,10 +526,10 @@ function FillSubWeaponAndCalcDamage(character, simMH) {
         damage = 0;
     }
     else if (type == "Mag.") {
-        damage = calculateSkillDamage(character.matk, character.boostMabilityPercent, character.boostElementalPot, character.boostAbilityPercent, pot, MY_HW_WEP, ENEMY_DEFENSE);
+        damage = calculateSkillDamage(character.matk, character.boostMabilityPercent, character.boostElementalPot, character.boostAbilityPercent, pot, hw_wep, ENEMY_DEFENSE);
     }
     else {
-        damage = calculateSkillDamage(character.patk, character.boostPabilityPercent, character.boostElementalPot, character.boostAbilityPercent, pot, MY_HW_WEP, ENEMY_DEFENSE);
+        damage = calculateSkillDamage(character.patk, character.boostPabilityPercent, character.boostElementalPot, character.boostAbilityPercent, pot, hw_wep, ENEMY_DEFENSE);
     }
 
     return damage;
@@ -526,6 +537,28 @@ function FillSubWeaponAndCalcDamage(character, simMH) {
 
 /* ------------- Sim functions end -------------------*/
 function outputResult(damage, character, simMH) {
+
+    // function calculateAllSkillDamage(mpatk, skillPotency, mpatkUpPercent, elemResistDown, stance, elemDmgUpPercent, elementResistUp, defense, defenseBuff, weaknessExploitPercent, enfeeblePercent)
+
+ /*   var mpatk = 12000;
+    var mpatkUpPercent = 0.3;
+    var elemResistDown = 0.5;
+    var stance = STANCE;
+    var elemDmgUpPercent1 = 0.4; 
+    var elemDmgUpPercent2 = 0;
+    var elementResistUp = 0;
+    var defense = 320;
+    var defenseBuff = -0.35;
+    var weaknessExploitPercent1 = 0;
+    var weaknessExploitPercent2 = 0.2;
+    var enfeeblePercent = 0.1;
+    var char1 = calculateAllSkillDamage(mpatk, 900, mpatkUpPercent, elemResistDown, stance, elemDmgUpPercent1, elementResistUp, defense, defenseBuff, weaknessExploitPercent1, enfeeblePercent)
+    var char2 = calculateAllSkillDamage(mpatk, 800, mpatkUpPercent, elemResistDown, stance, elemDmgUpPercent2, elementResistUp, defense, defenseBuff, weaknessExploitPercent2, enfeeblePercent)
+
+    console.log("Dmg 1: " + char1)
+    console.log("Dmg 2: " + char2)
+*/
+
     var element = document.getElementById("progressBar");
     element.style.width = "100%";
     element.innerHTML = "100%";
@@ -940,6 +973,8 @@ function initializeSimChar(character) {
     character.boostPatkAll = 0;
     character.boostMatkAll = 0;
     character.boostAtkAll = 0;
+    character.materiaPatk = 0;
+    character.materiaMatk = 0;
 }
 
 function charSetStatsFromDatabase(simChar) {
@@ -1070,14 +1105,43 @@ function validateInput() {
 
     updateUserWeapListLevel(mainHand, offHand);
 
+    hw_patk = parseFloat(document.getElementById("patkHw").value) / 100;
+    hw_matk = parseFloat(document.getElementById("matkHw").value) / 100;
+    hw_wep = parseFloat(document.getElementById("skillHw").value) / 100;
+    pAllPercentOther = parseFloat(document.getElementById("patkAll").value) / 100;
+    mAllPercentOther = parseFloat(document.getElementById("matkAll").value) / 100;
+    aAllPercentOther = parseFloat(document.getElementById("atkAll").value) / 100;
+    patkMateria = parseFloat(document.getElementById("patkMateria").value) / 100;
+    matkMateria = parseFloat(document.getElementById("matkMateria").value) / 100;
 
+    // unless specified, mark event weapon as not available to avoid simming
+    if (document.getElementById("blkChoice").innerHTML == "Do Not Blacklist Summon/Event Weapon") {
+        markAllEventWeaponsAvailable("Y");
+    }
+    else {
+        markAllEventWeaponsAvailable("N");
+    }
+
+ /* 
     // For testing
-/*    mainHand = "Orthodox Raven";
-    offHand = "Absolute Royal"
-    sub1 = "Sun Umbrella";
-    sub2 = "Protector's Blade";
-    sub3 = "Enemy Launcher";
-    gear = "Intellectual P0 SOLDIER";*/
+    console.log(hw_patk)
+    console.log(hw_matk)
+    console.log(hw_wep)
+    console.log(pAllPercentOther)
+    console.log(mAllPercentOther)
+    console.log(aAllPercentOther)
+    console.log(patkMateria)
+    console.log(matkMateria)
+    
+    mainHand = "Maritime Sword";
+    offHand = "Murasame"
+    sub1 = "Ultimatic";
+    sub2 = "Bahamut Greatsword";
+    sub3 = "Chiron";
+    gear = "Maritime Sailor";
+    hw_patk = 0.435;
+    hw_matk = 0.381;
+    hw_wep = 0.300;*/
 
     return true;
 }
@@ -1096,6 +1160,37 @@ function printWeapStat(weap) {
             return;
         }
     });
+}
+
+function noSimEventDefault() {
+    var el = document.getElementById("blkChoice");
+    el.innerHTML = document.getElementById("blkChoice0").innerHTML;
+}
+
+function simEvent() {
+    var el = document.getElementById("blkChoice");
+    el.innerHTML = document.getElementById("blkChoice1").innerHTML;
+}
+
+// Mark all event weapons as not available or available to avoid simming
+function markAllEventWeaponsAvailable(value) {
+    for (var i = 0; i < userWeapList.length; i++) {
+        if (isEventWeapon(userWeapList[i].name)) {
+            userWeapList[i].avail = value;
+        }
+    }
+}
+
+function isEventWeapon(name) {
+    for (var i = 0; i < weaponDatabase.length; i++) {
+        if (weaponDatabase[i].name == name) {
+            if (weaponDatabase[i].event == "Y") {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 function resetBlkList(listName) {
@@ -1495,6 +1590,7 @@ function processUserData(text) {
         weapData.extraOb = row[i][4];   // not used
         weapData.avail = row[i][5]; // avail to sim
         weapData.id = 0; // weaponId
+        weapData.event = 'N';
 
         userWeapList.push(weapData);
     }
@@ -1544,6 +1640,7 @@ function processUserJsonData(text) {
             weapData.extraOb = 0;
             weapData.avail = 'Y';
             weapData.id = weapon.weaponId;
+            weapData.event = 'N';
             userWeapList.push(weapData);
         }
 
@@ -1623,6 +1720,7 @@ function populateUserWeapListUsingDatabase() {
         weapData.extraOb = 0;
         weapData.avail = 'Y'; // avail to sim
         weapData.id = weaponDatabase.id;
+        weapData.event = weaponDatabase[i].event;
 
         userWeapList.push(weapData);
     }
@@ -1768,6 +1866,7 @@ function readWeaponDatabase() {
             weapData.effect1Range = row[i][m]; m++;
             weapData.uses = parseInt(row[i][m]); m++;
             weapData.id = parseInt(row[i][m]); m++;
+            weapData.event = row[i][m]; m++;
 
             weaponDatabase.push(weapData);
         }

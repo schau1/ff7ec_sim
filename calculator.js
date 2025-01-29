@@ -440,11 +440,11 @@ function addWeapontoCharStat(character, weapon, isMh) {
 }
 
 // Add up all the stats on the character
-function calcTotalStatFromCharR(character) {
+function calcTotalStatFromCharR(character, hw_patk, hw_matk, hw_heal, hw_hp, pAllPercentOther, mAllPercentOther, aAllPercentOther, patkMatPercent, matkMatPercent) {
     var percent = 0;
     var value = 0;
-    var PallPercent = 0;
-    var MallPercent = 0;
+    var PallPercent = pAllPercentOther + aAllPercentOther;
+    var MallPercent = mAllPercentOther + aAllPercentOther;
     var patk_value = 0;
     var matk_value = 0;
     var HpPercent = 0;
@@ -452,11 +452,21 @@ function calcTotalStatFromCharR(character) {
     var HealPercent = 0;
     var heal_value = 0;
 
+/*    console.log("Starting PATK: " + character.patk)
+    console.log("Starting MATK: " + character.matk)
+    console.log("Starting PallPercent: " + PallPercent)
+    console.log("Starting MallPercent: " + MallPercent)
+    console.log("Starting hw_patk: " + hw_patk)
+    console.log("Starting hw_matk: " + hw_matk)
+    console.log("Starting pAllPercentOther: " + pAllPercentOther)
+    console.log("Starting mAllPercentOther: " + mAllPercentOther)
+    console.log("Starting aAllPercentOther: " + aAllPercentOther)
+    console.log("Starting patkMatPercent: " + patkMatPercent)
+    console.log("Starting matkMatPercent: " + matkMatPercent)*/
+
     if (character.boostHp > 0) {
         HpPercent = calculateBoostHpPercent(character.boostHp);
         hp_value = calcExtraHpFromR(percent);
-        //    character.hp = Math.floor((character.hp + value) * (1 + percent));
-        //character.hp = Math.floor(Math.floor(character.hp * (1 + percent)) * (1+MY_HW_HP) + value);
     }
 
     if (character.boostHpPercent > 0) {
@@ -464,12 +474,12 @@ function calcTotalStatFromCharR(character) {
     }
 
     if (character.boostMatkAll > 0) {
-        MallPercent = calculateBoostMatkAllPercent(character.boostMatkAll);
+        MallPercent += calculateBoostMatkAllPercent(character.boostMatkAll);
         matk_value += calcExtraMatkFromPatkAll(MallPercent);
     }
 
     if (character.boostPatkAll > 0) {
-        PallPercent = calculateBoostPatkAllPercent(character.boostPatkAll);
+        PallPercent += calculateBoostPatkAllPercent(character.boostPatkAll);
         patk_value += calcExtraPatkFromPatkAll(PallPercent);
     }
 
@@ -492,9 +502,6 @@ function calcTotalStatFromCharR(character) {
         patk_value += value;
         MallPercent += percent;
         PallPercent += percent;
-
-//        character.patk = Math.floor((character.patk + value) * (1 + percent));
-//        character.matk = Math.floor((character.matk + value) * (1 + percent));
     }
 
     if (character.boostAtkAll > 0) {
@@ -523,13 +530,16 @@ function calcTotalStatFromCharR(character) {
         heal_value = calcExtraHealFromR(HealPercent);
     }
 
+/*    console.log("Ending PATK: " + character.patk)
+    console.log("Ending MATK: " + character.matk)
+    console.log("Ending PallPercent: " + PallPercent)
+    console.log("Ending MallPercent: " + MallPercent)*/
 
-//    console.log("Pall%: " + PallPercent + "  value: " + patk_value);
-//    console.log("Mall%: " + MallPercent + "  value: " + matk_value);
-    character.patk = Math.floor(Math.floor(character.patk * (1 + PallPercent))*(1 + MY_HW_PATK) + Math.floor(patk_value * (1 + PallPercent)));
-    character.matk = Math.floor(Math.floor(character.matk * (1 + MallPercent))*(1 + MY_HW_MATK) + Math.floor(matk_value * (1 + MallPercent)));
-    character.hp = Math.floor(Math.floor(character.hp * (1 + HpPercent)) * (1 + MY_HW_HP) + hp_value);
-    character.heal = Math.floor(Math.floor(character.heal * (1 + HealPercent)) * (1 + MY_HW_HEAL) + heal_value);
+    character.patk = Math.floor(character.patk * (1 + PallPercent) * (1 + hw_patk) * (1 + patkMatPercent)) + Math.floor(patk_value * (1 + PallPercent));
+    character.matk = Math.floor(character.matk * (1 + MallPercent) * (1 + hw_matk) * (1 + matkMatPercent)) + Math.floor(matk_value * (1 + MallPercent));
+    character.hp = Math.floor(character.hp * (1 + HpPercent) * (1 + hw_hp)) + hp_value;
+    character.heal = Math.floor(character.heal * (1 + HealPercent) * (1 + hw_heal)) + heal_value;
+
 }
 
 function calcExtraAtkFromR(percent) {
@@ -1276,7 +1286,6 @@ function calculateSkillDamage(mpatk, boostMPabilityPercent, boostAbilityPercent,
     var maxSkillDamage;
     var basicSkillDamage;
 
-
     var skill = 50 * mpatk * skillPotency * (1 + hwWeapBonus) * (1 + STANCE) * (1 + (boostElementalPercent + boostAbilityPercent + boostMPabilityPercent)) / (enemyDefense * 2.2 + 100);
     minSkillDamage = skill * MIN_VARIANCE;
     maxSkillDamage = skill * MAX_VARIANCE;
@@ -1284,6 +1293,47 @@ function calculateSkillDamage(mpatk, boostMPabilityPercent, boostAbilityPercent,
 
     return basicSkillDamage;
 
+}
+
+/*
+    Calculate with all resistance and buffs/debuffs
+    https://discord.com/channels/936517645275107378/973765964653010974/1199622828559958057
+    simplified base damage formulas(excludes unused mechanics)
+ours: (attack * 50) / (enemyDefense * 2.2 + 100)
+enemies: (enemyAttack * 2000) / (defense * 100 + 10000)
+
+    multiplier portion of the formula
+baseDamage * skill % * critical % * limitCombo % * (1 - damageResist %) * (1 - elementResist %) * (1 - elementResistBuffDebuff %) * (1 + battleBoost %) * (1 + statusCondition %) * (1 + damageBoost % + damageTakenBoost %) * random % * (1 + finalDamage %)
+skill %: multiplier on the skill * materia support * sum of applicable equipment damage boosts
+critical %: minimum of 1, only used if a crit(1.5 default, 20 % crit damage = 1.7, 20 % crit resist = 1.3)
+damageResist %: damage resistance
+elementResist %: element resistance
+elementResistBuffDebuff %: total of the element resist buffs / debuffs on the target
+battleBoost %: unsure, assumed to be related to tower floors and crisis dungeons
+statusCondition %: sleep makes this 1
+damageBoost %: attack stance boost(this does not include the phys / mag potency stats)
+damageTakenBoost %: defense stance boost
+random %: variation is about + -1.5 % (1 / 64)
+finalDamage %: guild ranking related
+if 0 damage is dealt, then it deals 1 instead
+
+enemyAttack = skill*(1+patkUp%)*(1+elemResistDown%)*(1+elemDmgUp%)*(1+maxStance)*(1-weaknessResistance%)
+
+enfeeble enhances debuff potency to be equivalent to +1 tiers, so high -> very high
+*/
+function calculateAllSkillDamage(mpatk, hw_atk, hw_skill, skillPotency, mpatkUpPercent, elemResistDown, stance, elemDmgUpPercent, elementResistUp, defense, defenseBuff, weaknessExploitPercent) {
+    var minSkillDamage;
+    var maxSkillDamage;
+    var basicSkillDamage;
+
+    var attack = mpatk * (1 + hw_atk) * skillPotency * (1 + hw_skill) * (1 + mpatkUpPercent) * (1 + elemDmgUpPercent) * (1 + weaknessExploitPercent) * (1 - elemResistDown) * (1 - elementResistUp) * (1 + stance)
+
+    var skill = (50 * attack) / (defense * (1 + defenseBuff) * 2.2 + 100);
+    minSkillDamage = Math.floor(skill * MIN_VARIANCE);
+    maxSkillDamage = Math.floor(skill * MAX_VARIANCE);
+    basicSkillDamage = Math.floor((minSkillDamage + maxSkillDamage) / 2);
+
+    return [minSkillDamage, maxSkillDamage, basicSkillDamage];
 }
 
 function convertElementalXPotencyToElementalPotency(character, elem)
