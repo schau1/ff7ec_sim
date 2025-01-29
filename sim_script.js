@@ -1122,9 +1122,9 @@ function validateInput() {
         markAllEventWeaponsAvailable("N");
     }
 
- /* 
+  
     // For testing
-    console.log(hw_patk)
+/*    console.log(hw_patk)
     console.log(hw_matk)
     console.log(hw_wep)
     console.log(pAllPercentOther)
@@ -1137,7 +1137,7 @@ function validateInput() {
     offHand = "Murasame"
     sub1 = "Ultimatic";
     sub2 = "Bahamut Greatsword";
-    sub3 = "Chiron";
+    sub3 = "Enemy Launcher";
     gear = "Maritime Sailor";
     hw_patk = 0.435;
     hw_matk = 0.381;
@@ -1591,6 +1591,9 @@ function processUserData(text) {
         weapData.avail = row[i][5]; // avail to sim
         weapData.id = 0; // weaponId
         weapData.event = 'N';
+        weapData.brand0 = 0;
+        weapData.brand1 = 0;
+        weapData.brand2 = 0;
 
         userWeapList.push(weapData);
     }
@@ -1640,6 +1643,17 @@ function processUserJsonData(text) {
             weapData.extraOb = 0;
             weapData.avail = 'Y';
             weapData.id = weapon.weaponId;
+
+            // weaponAttachmentEffectId0, weaponAttachmentEffectId1, weaponAttachmentEffectId2
+            // PATK: 0xxx
+            // MATK: 1xxx
+            // HP:   3xxx
+            // PDEF: 4xxx
+            // MDEF: 5xxx
+            // HEAL: 6xxx
+            weapData.brand0 = keepLastXDigits(weapon.weaponAttachmentEffectId0, 4);
+            weapData.brand1 = keepLastXDigits(weapon.weaponAttachmentEffectId1, 4);
+            weapData.brand2 = keepLastXDigits(weapon.weaponAttachmentEffectId2, 4);
             weapData.event = 'N';
             userWeapList.push(weapData);
         }
@@ -1721,6 +1735,9 @@ function populateUserWeapListUsingDatabase() {
         weapData.avail = 'Y'; // avail to sim
         weapData.id = weaponDatabase.id;
         weapData.event = weaponDatabase[i].event;
+        weapData.brand0 = 0;
+        weapData.brand1 = 0;
+        weapData.brand2 = 0;
 
         userWeapList.push(weapData);
     }

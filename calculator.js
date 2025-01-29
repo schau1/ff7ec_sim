@@ -104,6 +104,10 @@ function calcStatBaseOnLevelAndOb(weap) {
             weap.matk = calcMatkBaseOnLevelAndOb(weap, element);
             weap.pot = calcSkillPotencyBaseOnOb(weap, element);    // assume single target
 
+            addBrandToWeapon(weap, weap.brand0);
+            addBrandToWeapon(weap, weap.brand1);
+            addBrandToWeapon(weap, weap.brand2);
+
             weap.type = element.type;  // Mag. or Phys.
             weap.element = element.element;
             weap.range = element.range; 
@@ -113,6 +117,32 @@ function calcStatBaseOnLevelAndOb(weap) {
             return;
         }
     });   
+}
+
+// return the last x digit of a numbers
+function keepLastXDigits(number, x) {
+    var newNumber = number.toString();
+    newNumber = newNumber.slice(-x)
+
+    return +newNumber;  // convert back to number
+}
+
+function addBrandToWeapon(weap, brand) {
+    // PATK: 0xxx
+    // MATK: 1xxx
+    // HP:   3xxx
+    // PDEF: 4xxx
+    // MDEF: 5xxx
+    // HEAL: 6xxx
+    if (brand > 0 && brand < 1000) {
+        // PATK
+        weap.patk += keepLastXDigits(brand, 2);
+    }
+    else if (brand < 2000) {
+        // MATK
+        weap.matk += keepLastXDigits(brand, 2);
+    }
+    // This is simulator, ignore other stats
 }
 
 function calcRAbilityStatBaseOnLevelAndOb(weap, element) {
