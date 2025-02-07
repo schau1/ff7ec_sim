@@ -442,7 +442,7 @@ async function simBestSub(character, mainHand) {
                     (userWeapList[z].name == character.oh))
                     continue;
 
-                if (userWeapList[z].avail == "N")
+                if (userWeapList[z].avail == "N" || userWeapList[z].isUl == "Y")
                     continue;
 
                 // WTF are we doing if we're not looking for any weapon
@@ -1178,6 +1178,9 @@ function markAllEventWeaponsAvailable(value) {
         if (isEventWeapon(userWeapList[i].name)) {
             userWeapList[i].avail = value;
         }
+        else if (isULWeapon(userWeapList[i].name)) {
+            userWeapList[i].isUl = 'Y';
+        }
     }
 }
 
@@ -1388,7 +1391,7 @@ function isULWeapon(name) {
 
 function outputBlacklistWeaponList(dropdown, itemList) {
     for (var i = 0; i < itemList.length; i++) {
-        if (itemList[i].avail != "N") {
+        if (itemList[i].avail != "N" && !isULWeapon(itemList[i].name)) {
             var item = document.createElement("a");
             item.setAttribute('class', 'w3-bar-item w3-button');
             item.innerHTML = itemList[i].name;
