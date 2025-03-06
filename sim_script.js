@@ -595,9 +595,9 @@ function outputResult(damage, character, simMH) {
     element.appendChild(item);
 
     var ul = document.createElement("ul");
-    item = document.createElement("li");
+    /*item = document.createElement("li");
     item.innerHTML = "  HP: " + character.hp;
-    ul.appendChild(item);
+    ul.appendChild(item);*/
     item = document.createElement("li");
     item.innerHTML = "  PATK: " + character.patk;
     ul.appendChild(item);
