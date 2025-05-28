@@ -1887,7 +1887,7 @@ function readWeaponDatabase() {
             weapData.uses = parseInt(row[i][m]); m++;
             weapData.id = parseInt(row[i][m]); m++;
             weapData.event = row[i][m]; m++;
-
+            weapData.effect2Range = row[i][m]; m++;
             weaponDatabase.push(weapData);
         }
 
